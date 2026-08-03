@@ -2459,7 +2459,6 @@ const SPECIES = [
 {
     id:"rojo",
     name:"Rojo",
-    emoji:null,
     color:"#e53935",
     shell:"#a51212",
     rarity:1,
@@ -2469,7 +2468,6 @@ const SPECIES = [
 {
     id:"azul",
     name:"Azul",
-    emoji:null,
     color:"#348fe5",
     shell:"#14549e",
     rarity:1,
@@ -2479,7 +2477,6 @@ const SPECIES = [
 {
     id:"verde",
     name:"Verde",
-    emoji:null,
     color:"#43a84a",
     shell:"#176622",
     rarity:1,
@@ -2489,7 +2486,6 @@ const SPECIES = [
 {
     id:"amarillo",
     name:"Amarillo",
-    emoji:null,
     color:"#f4d329",
     shell:"#a98b05",
     rarity:1,
@@ -2499,7 +2495,6 @@ const SPECIES = [
 {
     id:"naranja",
     name:"Naranja",
-    emoji:null,
     color:"#ff8738",
     shell:"#b84910",
     rarity:1,
@@ -2509,7 +2504,6 @@ const SPECIES = [
 {
     id:"rosa",
     name:"Rosa",
-    emoji:null,
     color:"#f38eaf",
     shell:"#b83c69",
     rarity:1,
@@ -2519,7 +2513,6 @@ const SPECIES = [
 {
     id:"marron",
     name:"Marrón",
-    emoji:null,
     color:"#9b673f",
     shell:"#61351d",
     rarity:1,
@@ -2529,7 +2522,6 @@ const SPECIES = [
 {
     id:"blanco",
     name:"Blanco",
-    emoji:null,
     color:"#eeeeee",
     shell:"#aaaaaa",
     rarity:1,
@@ -2539,7 +2531,6 @@ const SPECIES = [
 {
     id:"violeta",
     name:"Violeta",
-    emoji:"💜",
     color:"#9d4bd0",
     shell:"#5e208c",
     rarity:2,
@@ -2549,7 +2540,6 @@ const SPECIES = [
 {
     id:"turquesa",
     name:"Turquesa",
-    emoji:"🩵",
     color:"#45d7d0",
     shell:"#158c8a",
     rarity:2,
@@ -2559,7 +2549,6 @@ const SPECIES = [
 {
     id:"dorado",
     name:"Dorado",
-    emoji:"💛",
     color:"#f4c542",
     shell:"#a87809",
     rarity:2,
@@ -2569,7 +2558,6 @@ const SPECIES = [
 {
     id:"negro",
     name:"Negro",
-    emoji:"⚫",
     color:"#242424",
     shell:"#090909",
     rarity:2,
@@ -2579,7 +2567,6 @@ const SPECIES = [
 {
     id:"esmeralda",
     name:"Esmeralda",
-    emoji:"💚",
     color:"#28b86c",
     shell:"#087237",
     rarity:3,
@@ -2589,7 +2576,6 @@ const SPECIES = [
 {
     id:"sombra",
     name:"Sombra",
-    emoji:"🌑",
     color:"#34344b",
     shell:"#11111d",
     rarity:3,
@@ -2599,7 +2585,6 @@ const SPECIES = [
 {
     id:"oceanico",
     name:"Oceánico",
-    emoji:"🌊",
     color:"#1684bc",
     shell:"#075276",
     rarity:3,
@@ -2609,7 +2594,6 @@ const SPECIES = [
 {
     id:"cristal",
     name:"Cristal",
-    emoji:"🔷",
     color:"#9eefff",
     shell:"#54b9d1",
     rarity:3,
@@ -2619,7 +2603,6 @@ const SPECIES = [
 {
     id:"cosmico",
     name:"Cósmico",
-    emoji:"🌌",
     color:"#161332",
     shell:"#6749bd",
     rarity:5,
@@ -2629,7 +2612,6 @@ const SPECIES = [
 {
     id:"fantasma",
     name:"Fantasma",
-    emoji:"👻",
     color:"#dce7ff",
     shell:"#a4b6df",
     rarity:5,
@@ -2639,7 +2621,6 @@ const SPECIES = [
 {
     id:"arcoiris",
     name:"Arcoíris",
-    emoji:"🌈",
     color:"#ff8fc5",
     shell:"#875de0",
     rarity:5,
@@ -2649,7 +2630,6 @@ const SPECIES = [
 {
     id:"volcanico",
     name:"Volcánico",
-    emoji:"🔥",
     color:"#511717",
     shell:"#d6421d",
     rarity:5,
@@ -2659,7 +2639,6 @@ const SPECIES = [
 {
     id:"glacial",
     name:"Glacial",
-    emoji:"❄️",
     color:"#c9f7ff",
     shell:"#48b6d8",
     rarity:5,
@@ -2669,7 +2648,6 @@ const SPECIES = [
 {
     id:"electrico",
     name:"Eléctrico",
-    emoji:"⚡",
     color:"#f3df28",
     shell:"#9c8200",
     rarity:5,
@@ -2679,7 +2657,6 @@ const SPECIES = [
 {
     id:"solar",
     name:"Solar",
-    emoji:"☀️",
     color:"#ff9d17",
     shell:"#df4e13",
     rarity:5,
@@ -2689,7 +2666,6 @@ const SPECIES = [
 {
     id:"diamante",
     name:"Diamante",
-    emoji:"💎",
     color:"#9ef4ff",
     shell:"#53bdcf",
     rarity:5,
@@ -2699,7 +2675,6 @@ const SPECIES = [
 {
     id:"aurora",
     name:"Aurora",
-    emoji:"🌈",
     color:"#63e6c5",
     shell:"#286da3",
     rarity:5,
@@ -5420,7 +5395,7 @@ function renderTerrarium(){
 
 
                 <div class="snailName">
-                    ${s.emoji || "🐌"} ${s.name}
+                    ${s.name}
                 </div>
 
             </div>
@@ -5565,7 +5540,6 @@ function renderSnailCards(){
 
 
                 <h3>
-                    ${s.emoji || "🐌"}
                     ${s.name}
                 </h3>
 
@@ -5730,7 +5704,6 @@ function renderBook(){
 
 
                 <h3>
-                    ${s.emoji || "🐌"}
                     ${s.name}
                 </h3>
 
