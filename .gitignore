@@ -5,3 +5,7 @@ Thumbs.db
 
 # Claude Code (config local de la sesión, no del proyecto)
 .claude/
+
+# Herramientas locales para procesar assets (no forman parte del sitio)
+.tools/
+assets/snails/_frames/

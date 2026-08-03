@@ -631,11 +631,31 @@ main{
         top;
 }
 
-.snail svg{
+.snail svg,
+.snail img{
 
     width:82px;
 
     height:78px;
+
+    object-fit:contain;
+}
+
+/*
+   Tamaño por defecto para el arte PNG de especie fuera del
+   terrario (tarjetas de "Mis caracoles", "Libro de especies",
+   etc.): se ajusta al ancho del contenedor que lo envuelve,
+   igual que hacían los SVG dibujados a mano.
+*/
+.snailImg{
+
+    display:block;
+
+    width:100%;
+
+    height:auto;
+
+    object-fit:contain;
 }
 
 .snailName{
@@ -1481,7 +1501,8 @@ main{
         height:64px;
     }
 
-    .snail svg{
+    .snail svg,
+    .snail img{
         width:64px;
         height:60px;
     }
@@ -2411,6 +2432,19 @@ const FOOD = {
 
 
 /* =========================================================
+   ARTE REALISTA POR ESPECIE (PNG)
+
+   Reemplaza al dibujo SVG hecho a mano para las especies que
+   ya tienen imagen propia en assets/snails/. Las que no
+   aparecen acá siguen usando el SVG (ver model()).
+========================================================= */
+
+const SPECIES_IMAGES = {
+    rojo: "assets/snails/rojo.png"
+};
+
+
+/* =========================================================
    ESPECIES
 ========================================================= */
 
@@ -3271,6 +3305,19 @@ function model(s){
 
     if(!s){
         return "";
+    }
+
+    if(SPECIES_IMAGES[s.id]){
+
+        return `
+        <img
+            class="snailImg"
+            src="${SPECIES_IMAGES[s.id]}"
+            alt="Caracol ${s.name}"
+            loading="lazy"
+        >
+        `;
+
     }
 
     if(s.id === "cosmico"){
