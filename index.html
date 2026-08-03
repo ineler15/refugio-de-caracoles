@@ -3567,6 +3567,42 @@ function babyModel(s){
 
 
 
+/* =========================================================
+   QUÉ POSE LE TOCA A UN CARACOL AHORA MISMO
+
+   Única fuente de verdad para la prioridad de poses: la usan
+   tanto model() (para dibujarla) como updatePositions() (para
+   saber si la pose ya dibujada quedó vieja y hay que
+   redibujarla, sin esperar a un render() completo).
+========================================================= */
+
+function poseKeyFor(snail){
+
+    if(!snail){
+        return "idle";
+    }
+
+    if(snail.petPoseTime > 0){
+        return "happy";
+    }
+
+    if(snail.pause > 0){
+        return "eating";
+    }
+
+    if(game.night){
+        return "sleeping";
+    }
+
+    if(snail.happy >= 80){
+        return "happy";
+    }
+
+    return "idle";
+
+}
+
+
 function model(s,snail){
 
     if(!s){
@@ -3591,28 +3627,22 @@ function model(s,snail){
        antes tenían un dibujo especial fijo sin poses) usan el
        mismo sistema de poses que "rojo", coloreado con su
        propio color/shell.
-
-       La pose depende del estado real del caracol (si se
-       pasó una instancia). Sin snail (ej. Libro de especies,
-       que solo muestra la especie) siempre se ve en reposo.
     */
-    if(snail){
+    switch(poseKeyFor(snail)){
 
-        if(snail.pause > 0){
-            return eatingModel(s);
-        }
-
-        if(game.night){
-            return sleepingModel(s);
-        }
-
-        if(snail.happy >= 80){
+        case "happy":
             return happyModel(s);
-        }
+
+        case "eating":
+            return eatingModel(s);
+
+        case "sleeping":
+            return sleepingModel(s);
+
+        default:
+            return normalModel(s);
 
     }
-
-    return normalModel(s);
 
 }
 
@@ -3653,6 +3683,8 @@ function createSnail(type){
         bubble:"",
 
         bubbleTime:0,
+
+        petPoseTime:0,
 
         pause:0
 
@@ -4071,6 +4103,14 @@ function petSnail(id){
 
     snail.bubbleTime = 80;
 
+    /*
+       Reacción inmediata (30 ticks del bucle de vida, ~3s):
+       tiene prioridad sobre todo en model(), así que se ve
+       aunque el caracol esté durmiendo o su "happy" todavía
+       no llegue al umbral de la pose feliz permanente.
+    */
+    snail.petPoseTime = 30;
+
 
     message(
         "❤️ Acariciaste a " +
@@ -4171,6 +4211,12 @@ function updateBubbles(){
 
         }
 
+        if(snail.petPoseTime > 0){
+
+            snail.petPoseTime--;
+
+        }
+
     });
 
 }
@@ -4202,6 +4248,41 @@ function updatePositions(){
 
             element.style.top =
                 snail.y + "%";
+
+
+            /*
+               La pose (reposo/comiendo/durmiendo/feliz) puede
+               cambiar sin que pase ninguna acción que dispare
+               un render() completo (ej. cae la noche, se le
+               pasa el efecto de la caricia). Comparamos contra
+               la última pose dibujada y solo si cambió se
+               vuelve a armar el dibujo de ESE caracol.
+            */
+
+            const poseKey =
+                poseKeyFor(snail);
+
+            if(snail._lastPoseKey !== poseKey){
+
+                const modelContainer =
+                    element.querySelector(
+                        ".snailModel"
+                    );
+
+                const s =
+                    species(snail.type);
+
+                if(modelContainer && s){
+
+                    modelContainer.innerHTML =
+                        model(s,snail);
+
+                }
+
+                snail._lastPoseKey =
+                    poseKey;
+
+            }
 
 
             /*
@@ -4772,7 +4853,7 @@ function openEnvelope(type){
 
 
     message(
-        "✉️ ¡Sobre abierto! " +
+        "✉️ Has comprado un sobre. " +
         "🥚🥚 Has conseguido 2 huevos."
     );
 
@@ -5391,7 +5472,9 @@ function renderTerrarium(){
                 }
 
 
-                ${model(s,snail)}
+                <div class="snailModel">
+                    ${model(s,snail)}
+                </div>
 
 
                 <div class="snailName">
