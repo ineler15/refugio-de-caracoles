@@ -1147,6 +1147,134 @@ main{
 }
 
 /* =========================================================
+   TUTORIAL DE BIENVENIDA
+
+   Se muestra una sola vez, justo después de crear una cuenta
+   nueva (ver registerUser()/enterGame()).
+========================================================= */
+
+#tutorialOverlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(20,40,25,.55);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:20px;
+
+    z-index:200;
+}
+
+.tutorialCard{
+
+    width:100%;
+
+    max-width:380px;
+
+    background:var(--surface);
+
+    border-radius:var(--radius-lg);
+
+    box-shadow:var(--shadow-lg);
+
+    padding:26px 24px;
+
+    text-align:center;
+
+    animation:panelAppear .2s ease;
+}
+
+.tutorialIcon{
+
+    font-size:44px;
+
+    display:block;
+
+    margin-bottom:6px;
+}
+
+.tutorialCard h2{
+
+    font-family:var(--font-display);
+
+    color:var(--ink);
+
+    margin-bottom:8px;
+}
+
+.tutorialCard p{
+
+    color:var(--ink-soft);
+
+    line-height:1.5;
+
+    margin-bottom:18px;
+}
+
+.tutorialDots{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:6px;
+
+    margin-bottom:18px;
+}
+
+.tutorialDots span{
+
+    width:7px;
+
+    height:7px;
+
+    border-radius:var(--radius-pill);
+
+    background:var(--border);
+}
+
+.tutorialDots span.active{
+
+    background:var(--accent);
+}
+
+.tutorialNav{
+
+    display:flex;
+
+    gap:10px;
+}
+
+.tutorialNav button{
+
+    flex:1;
+}
+
+.tutorialSkip{
+
+    margin-top:12px;
+
+    background:none;
+
+    border:none;
+
+    color:var(--ink-soft);
+
+    font-size:13px;
+
+    text-decoration:underline;
+
+    cursor:pointer;
+}
+
+/* =========================================================
    PANTALLA DE INICIO DE SESIÓN
 ========================================================= */
 
@@ -1657,6 +1785,54 @@ main{
             id="authMessage"
             class="authMessage"
         ></p>
+
+    </div>
+
+</div>
+
+<!-- =====================================================
+     TUTORIAL DE BIENVENIDA (solo cuentas nuevas)
+===================================================== -->
+
+<div id="tutorialOverlay" class="hidden">
+
+    <div class="tutorialCard">
+
+        <span id="tutorialIcon" class="tutorialIcon"></span>
+
+        <h2 id="tutorialTitle"></h2>
+
+        <p id="tutorialText"></p>
+
+        <div id="tutorialDots" class="tutorialDots"></div>
+
+        <div class="tutorialNav">
+
+            <button
+                type="button"
+                id="tutorialPrevButton"
+                onclick="tutorialPrev()"
+            >
+                Atrás
+            </button>
+
+            <button
+                type="button"
+                id="tutorialNextButton"
+                onclick="tutorialNext()"
+            >
+                Siguiente
+            </button>
+
+        </div>
+
+        <button
+            type="button"
+            class="tutorialSkip"
+            onclick="closeTutorial()"
+        >
+            Saltar tutorial
+        </button>
 
     </div>
 
@@ -9473,6 +9649,185 @@ function handleAuthSubmit(event){
    REGISTRO
 ========================================================= */
 
+/* =========================================================
+   TUTORIAL DE BIENVENIDA
+
+   Se marca pendingTutorial cuando se crea una cuenta nueva
+   (registerUser) y se muestra recién en el primer enterGame()
+   de esa cuenta, ya con el juego cargado detrás.
+========================================================= */
+
+let pendingTutorial = false;
+
+let tutorialStepIndex = 0;
+
+const TUTORIAL_STEPS = [
+
+    {
+        icon:"🐌",
+        title:"¡Bienvenido al refugio!",
+        text:
+            "Acá vas a criar y cuidar caracoles. Este es tu " +
+            "terrario: tocá un caracol para acariciarlo, o " +
+            "hacé doble click para hablarle."
+    },
+
+    {
+        icon:"🥕",
+        title:"Aliméntalos",
+        text:
+            "En el terrario van apareciendo comidas. Tocalas " +
+            "para recogerlas y que tus caracoles se acerquen " +
+            "a comer — así suben su felicidad y energía."
+    },
+
+    {
+        icon:"✉️",
+        title:"Sobres de figuritas",
+        text:
+            "Usá tus monedas en la pestaña Sobres para " +
+            "comprar sobres. Cada uno trae 2 huevos de " +
+            "especies al azar."
+    },
+
+    {
+        icon:"🌱",
+        title:"Criadero",
+        text:
+            "Llevá esos huevos al Criadero para incubarlos. " +
+            "Con el tiempo eclosionan solos y el bebé crece " +
+            "hasta hacerse un caracol adulto."
+    },
+
+    {
+        icon:"📖",
+        title:"Libro de especies y minijuegos",
+        text:
+            "Cada especie nueva que consigas se anota en tu " +
+            "Libro de especies. Y cuando quieras un descanso, " +
+            "en Minijuegos hay formas extra de ganar monedas."
+    },
+
+    {
+        icon:"🎉",
+        title:"¡Listo para jugar!",
+        text:
+            "Eso es todo lo esencial. Explorá el resto vos " +
+            "mismo — ¡disfrutá tu Refugio de Caracoles!"
+    }
+
+];
+
+
+function showTutorial(){
+
+    tutorialStepIndex = 0;
+
+    const overlay =
+        document.getElementById("tutorialOverlay");
+
+    if(overlay){
+        overlay.classList.remove("hidden");
+    }
+
+    renderTutorialStep();
+
+}
+
+
+function renderTutorialStep(){
+
+    const step =
+        TUTORIAL_STEPS[tutorialStepIndex];
+
+    if(!step){
+        return;
+    }
+
+    document.getElementById("tutorialIcon").textContent =
+        step.icon;
+
+    document.getElementById("tutorialTitle").textContent =
+        step.title;
+
+    document.getElementById("tutorialText").textContent =
+        step.text;
+
+    document.getElementById("tutorialDots").innerHTML =
+        TUTORIAL_STEPS
+            .map((_,i) =>
+                `<span class="${
+                    i === tutorialStepIndex ? "active" : ""
+                }"></span>`
+            )
+            .join("");
+
+    const prevButton =
+        document.getElementById("tutorialPrevButton");
+
+    const nextButton =
+        document.getElementById("tutorialNextButton");
+
+    if(prevButton){
+
+        prevButton.style.visibility =
+            tutorialStepIndex === 0
+            ? "hidden"
+            : "visible";
+
+    }
+
+    if(nextButton){
+
+        nextButton.textContent =
+            tutorialStepIndex === TUTORIAL_STEPS.length - 1
+            ? "¡A jugar!"
+            : "Siguiente";
+
+    }
+
+}
+
+
+function tutorialNext(){
+
+    if(tutorialStepIndex >= TUTORIAL_STEPS.length - 1){
+        closeTutorial();
+        return;
+    }
+
+    tutorialStepIndex++;
+
+    renderTutorialStep();
+
+}
+
+
+function tutorialPrev(){
+
+    if(tutorialStepIndex <= 0){
+        return;
+    }
+
+    tutorialStepIndex--;
+
+    renderTutorialStep();
+
+}
+
+
+function closeTutorial(){
+
+    const overlay =
+        document.getElementById("tutorialOverlay");
+
+    if(overlay){
+        overlay.classList.add("hidden");
+    }
+
+}
+
+
 function registerUser(username,password){
 
     setAuthLoading(true);
@@ -9480,6 +9835,8 @@ function registerUser(username,password){
 
     apiRequest("register",{username,password})
         .then(() => {
+
+            pendingTutorial = true;
 
             setAuthMessage(
                 "✅ Cuenta creada. ¡Iniciá sesión!",
@@ -9624,6 +9981,14 @@ function enterGame(){
     );
 
     saveGame(true);
+
+    if(pendingTutorial){
+
+        pendingTutorial = false;
+
+        showTutorial();
+
+    }
 
 }
 
