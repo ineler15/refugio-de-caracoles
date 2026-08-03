@@ -2999,6 +2999,112 @@ function uniqueId(prefix){
 
 
 /* =========================================================
+   RELLENOS ESPECIALES POR ESPECIE
+
+   Algunas especies no se ven bien con un solo color plano:
+   "arcoíris" usa un degradado multicolor, "cósmico" un patrón
+   tipo cielo estrellado (como el emoji 🌌), aplicado con
+   <pattern objectBoundingBox> para que se adapte solo al
+   tamaño de la concha en cualquier pose o tamaño (adulto o
+   bebé). Los ids son fijos (no varían entre instancias), así
+   que reutilizarlos en varios <svg> a la vez en la misma
+   página es intencional y no es un problema.
+========================================================= */
+
+function gradientDefs(s){
+
+    if(s.id === "arcoiris"){
+
+        return `
+        <defs>
+            <linearGradient
+                id="rainbowShell"
+                x1="0%" y1="0%"
+                x2="100%" y2="100%"
+            >
+                <stop offset="0%" stop-color="#ff4d4d" />
+                <stop offset="16%" stop-color="#ff9d4d" />
+                <stop offset="33%" stop-color="#ffe14d" />
+                <stop offset="50%" stop-color="#4dff88" />
+                <stop offset="66%" stop-color="#4dcfff" />
+                <stop offset="83%" stop-color="#7a4dff" />
+                <stop offset="100%" stop-color="#ff4dd2" />
+            </linearGradient>
+        </defs>
+        `;
+
+    }
+
+    if(s.id === "cosmico"){
+
+        return `
+        <defs>
+            <radialGradient
+                id="cosmicSky"
+                cx="35%" cy="30%"
+                r="85%"
+            >
+                <stop offset="0%" stop-color="#4a2f8f" />
+                <stop offset="45%" stop-color="#1f1350" />
+                <stop offset="100%" stop-color="#080523" />
+            </radialGradient>
+            <pattern
+                id="cosmicShell"
+                patternUnits="objectBoundingBox"
+                patternContentUnits="objectBoundingBox"
+                width="1" height="1"
+            >
+                <rect width="1" height="1" fill="url(#cosmicSky)" />
+                <circle cx=".15" cy=".22" r=".025" fill="#fff" opacity=".95" />
+                <circle cx=".38" cy=".12" r=".018" fill="#fff" opacity=".8" />
+                <circle cx=".62" cy=".28" r=".022" fill="#fff" opacity=".9" />
+                <circle cx=".8" cy=".15" r=".015" fill="#fff" opacity=".7" />
+                <circle cx=".25" cy=".55" r=".016" fill="#fff" opacity=".8" />
+                <circle cx=".55" cy=".62" r=".025" fill="#fff" opacity=".95" />
+                <circle cx=".75" cy=".5" r=".014" fill="#fff" opacity=".7" />
+                <circle cx=".45" cy=".82" r=".018" fill="#fff" opacity=".85" />
+                <circle cx=".85" cy=".78" r=".016" fill="#fff" opacity=".75" />
+                <circle cx=".1" cy=".8" r=".014" fill="#fff" opacity=".7" />
+                <circle cx=".5" cy=".4" r=".01" fill="#bcd2ff" opacity=".9" />
+                <circle cx=".68" cy=".7" r=".012" fill="#bcd2ff" opacity=".8" />
+            </pattern>
+        </defs>
+        `;
+
+    }
+
+    return "";
+
+}
+
+
+function shellFill(s){
+
+    if(s.id === "arcoiris"){
+        return "url(#rainbowShell)";
+    }
+
+    if(s.id === "cosmico"){
+        return "url(#cosmicShell)";
+    }
+
+    return s.shell;
+
+}
+
+
+function bodyFill(s){
+
+    return (
+        s.id === "arcoiris"
+        ? "url(#rainbowShell)"
+        : s.color
+    );
+
+}
+
+
+/* =========================================================
    MODELO DE CARACOL ADULTO
 ========================================================= */
 
@@ -3011,12 +3117,14 @@ function normalModel(s){
         xmlns="http://www.w3.org/2000/svg"
     >
 
+        ${gradientDefs(s)}
+
         <ellipse
             cx="45"
             cy="70"
             rx="43"
             ry="12"
-            fill="${s.color}"
+            fill="${bodyFill(s)}"
             stroke="#333"
             stroke-width="3"
         />
@@ -3025,7 +3133,7 @@ function normalModel(s){
             cx="54"
             cy="40"
             r="29"
-            fill="${s.shell}"
+            fill="${shellFill(s)}"
             stroke="#333"
             stroke-width="3"
         />
@@ -3046,7 +3154,7 @@ function normalModel(s){
             cx="88"
             cy="61"
             r="11"
-            fill="${s.color}"
+            fill="${bodyFill(s)}"
             stroke="#333"
             stroke-width="2"
         />
@@ -3100,12 +3208,14 @@ function sleepingModel(s){
         xmlns="http://www.w3.org/2000/svg"
     >
 
+        ${gradientDefs(s)}
+
         <ellipse
             cx="45"
             cy="70"
             rx="43"
             ry="12"
-            fill="${s.color}"
+            fill="${bodyFill(s)}"
             stroke="#333"
             stroke-width="3"
         />
@@ -3114,7 +3224,7 @@ function sleepingModel(s){
             cx="54"
             cy="40"
             r="29"
-            fill="${s.shell}"
+            fill="${shellFill(s)}"
             stroke="#333"
             stroke-width="3"
         />
@@ -3135,7 +3245,7 @@ function sleepingModel(s){
             cx="86"
             cy="65"
             r="11"
-            fill="${s.color}"
+            fill="${bodyFill(s)}"
             stroke="#333"
             stroke-width="2"
         />
@@ -3153,7 +3263,7 @@ function sleepingModel(s){
         />
 
         <path
-            d="M80 65 q3 3 6 0"
+            d="M90 58 q3 3 6 0"
             fill="none"
             stroke="#222"
             stroke-width="2"
@@ -3161,7 +3271,7 @@ function sleepingModel(s){
         />
 
         <path
-            d="M92 65 q3 3 6 0"
+            d="M95 60 q3 3 6 0"
             fill="none"
             stroke="#222"
             stroke-width="2"
@@ -3192,12 +3302,14 @@ function eatingModel(s){
         xmlns="http://www.w3.org/2000/svg"
     >
 
+        ${gradientDefs(s)}
+
         <ellipse
             cx="45"
             cy="70"
             rx="43"
             ry="12"
-            fill="${s.color}"
+            fill="${bodyFill(s)}"
             stroke="#333"
             stroke-width="3"
         />
@@ -3206,7 +3318,7 @@ function eatingModel(s){
             cx="54"
             cy="40"
             r="29"
-            fill="${s.shell}"
+            fill="${shellFill(s)}"
             stroke="#333"
             stroke-width="3"
         />
@@ -3227,7 +3339,7 @@ function eatingModel(s){
             cx="90"
             cy="74"
             r="11"
-            fill="${s.color}"
+            fill="${bodyFill(s)}"
             stroke="#333"
             stroke-width="2"
         />
@@ -3282,12 +3394,14 @@ function happyModel(s){
         xmlns="http://www.w3.org/2000/svg"
     >
 
+        ${gradientDefs(s)}
+
         <ellipse
             cx="45"
             cy="70"
             rx="43"
             ry="12"
-            fill="${s.color}"
+            fill="${bodyFill(s)}"
             stroke="#333"
             stroke-width="3"
         />
@@ -3296,7 +3410,7 @@ function happyModel(s){
             cx="54"
             cy="40"
             r="29"
-            fill="${s.shell}"
+            fill="${shellFill(s)}"
             stroke="#333"
             stroke-width="3"
         />
@@ -3317,7 +3431,7 @@ function happyModel(s){
             cx="88"
             cy="61"
             r="11"
-            fill="${s.color}"
+            fill="${bodyFill(s)}"
             stroke="#333"
             stroke-width="2"
         />
@@ -3353,29 +3467,29 @@ function happyModel(s){
         />
 
         <circle
-            cx="84"
-            cy="23"
+            cx="74"
+            cy="14"
             r="3.5"
             fill="#222"
         />
 
         <circle
-            cx="85.5"
-            cy="21.5"
+            cx="75.5"
+            cy="12.5"
             r="1.1"
             fill="#fff"
         />
 
         <circle
-            cx="99"
-            cy="25"
+            cx="108"
+            cy="16"
             r="3.5"
             fill="#222"
         />
 
         <circle
-            cx="100.5"
-            cy="23.5"
+            cx="109.5"
+            cy="14.5"
             r="1.1"
             fill="#fff"
         />
@@ -3400,12 +3514,14 @@ function babyModel(s){
         xmlns="http://www.w3.org/2000/svg"
     >
 
+        ${gradientDefs(s)}
+
         <ellipse
             cx="42"
             cy="62"
             rx="30"
             ry="9"
-            fill="${s.color}"
+            fill="${bodyFill(s)}"
             stroke="#333"
             stroke-width="3"
         />
@@ -3414,7 +3530,7 @@ function babyModel(s){
             cx="48"
             cy="43"
             r="22"
-            fill="${s.shell}"
+            fill="${shellFill(s)}"
             stroke="#333"
             stroke-width="3"
         />
@@ -3435,7 +3551,7 @@ function babyModel(s){
             cx="72"
             cy="53"
             r="9"
-            fill="${s.color}"
+            fill="${bodyFill(s)}"
             stroke="#333"
             stroke-width="2"
         />
@@ -3474,140 +3590,6 @@ function babyModel(s){
 }
 
 
-/* =========================================================
-   MODELOS ESPECIALES
-========================================================= */
-
-function cosmicModel(){
-
-    return `
-
-    <svg
-        viewBox="0 0 110 90"
-        xmlns="http://www.w3.org/2000/svg"
-    >
-
-        <ellipse
-            cx="45"
-            cy="70"
-            rx="43"
-            ry="12"
-            fill="#11102e"
-            stroke="#17132f"
-            stroke-width="3"
-        />
-
-        <circle
-            cx="54"
-            cy="40"
-            r="29"
-            fill="#11102e"
-            stroke="#17132f"
-            stroke-width="3"
-        />
-
-        <text
-            x="35"
-            y="48"
-            font-size="20"
-        >🌌</text>
-
-        <text
-            x="55"
-            y="29"
-            font-size="15"
-        >✦</text>
-
-        <text
-            x="64"
-            y="54"
-            font-size="13"
-        >★</text>
-
-        <circle
-            cx="88"
-            cy="61"
-            r="11"
-            fill="#11102e"
-            stroke="#17132f"
-            stroke-width="2"
-        />
-
-        <path
-            d="
-                M84 52
-                Q87 36 85 25
-
-                M91 52
-                Q98 38 99 28
-            "
-            fill="#17132f"
-            stroke="#17132f"
-            stroke-width="3"
-        />
-
-    </svg>
-
-    `;
-
-}
-
-
-function ghostModel(){
-
-    return `
-
-    <svg
-        viewBox="0 0 110 100"
-        xmlns="http://www.w3.org/2000/svg"
-    >
-
-        <path
-            d="
-                M18 76
-                Q12 55 18 34
-                Q25 10 55 10
-                Q85 10 92 34
-                Q98 55 92 76
-                L80 66
-                L68 78
-                L55 66
-                L42 78
-                L30 66
-                Z
-            "
-            fill="#dce7ff"
-            fill-opacity=".9"
-            stroke="#7183ad"
-            stroke-width="3"
-        />
-
-        <circle
-            cx="42"
-            cy="39"
-            r="5"
-            fill="#4d5c82"
-        />
-
-        <circle
-            cx="68"
-            cy="39"
-            r="5"
-            fill="#4d5c82"
-        />
-
-        <path
-            d="M45 51Q55 57 65 51"
-            fill="none"
-            stroke="#4d5c82"
-            stroke-width="3"
-        />
-
-    </svg>
-
-    `;
-
-}
 
 
 function model(s,snail){
@@ -3629,15 +3611,12 @@ function model(s,snail){
 
     }
 
-    if(s.id === "cosmico"){
-        return cosmicModel();
-    }
-
-    if(s.id === "fantasma"){
-        return ghostModel();
-    }
-
     /*
+       Todas las especies (incluidas cósmico y fantasma, que
+       antes tenían un dibujo especial fijo sin poses) usan el
+       mismo sistema de poses que "rojo", coloreado con su
+       propio color/shell.
+
        La pose depende del estado real del caracol (si se
        pasó una instancia). Sin snail (ej. Libro de especies,
        que solo muestra la especie) siempre se ve en reposo.
