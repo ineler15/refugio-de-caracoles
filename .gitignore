@@ -1,8 +1,3 @@
-# Google Apps Script (clasp)
-.clasp.json
-.claspignore.local
-node_modules/
-
 # Sistema
 .DS_Store
 Thumbs.db

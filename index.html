@@ -8654,13 +8654,27 @@ console.log(
 ========================================================= */
 
 /*
-   URL del despliegue de Apps Script (backend + el propio
-   juego, servido vía HtmlService). Si alguna vez se vuelve
-   a desplegar en otra URL, actualizar acá.
+   Datos del proyecto de Supabase (backend). La anon key es
+   pública a propósito — así está pensado Supabase: la
+   seguridad real la dan las funciones SQL en
+   supabase/schema.sql (RLS activado, sin acceso directo a las
+   tablas). Si el proyecto cambia, actualizar acá.
 */
 
-const APPS_SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbwXMXY9N7IHEnbFbonwtq8LBokuygTfOewalyhxMsgw_bhKfpPfUyRhUhVFRy-c7jM3Vw/exec";
+const SUPABASE_URL = "PEGA_AQUI_TU_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "PEGA_AQUI_TU_SUPABASE_ANON_KEY";
+
+/*
+   Cada "action" del backend anterior corresponde a una
+   función RPC de Postgres expuesta por Supabase (ver
+   supabase/schema.sql).
+*/
+const RPC_BY_ACTION = {
+    register: "register_user",
+    login: "login_user",
+    load: "load_progress",
+    save: "save_progress"
+};
 
 
 const REMEMBER_KEY =
@@ -8695,41 +8709,56 @@ function localCacheKey(){
 
 
 /* =========================================================
-   LLAMADA AL BACKEND (APPS SCRIPT)
+   LLAMADA AL BACKEND (SUPABASE)
 ========================================================= */
 
 function apiRequest(action,payload){
 
     if(
-        !APPS_SCRIPT_URL ||
-        APPS_SCRIPT_URL.indexOf("PEGA_AQUI") !== -1
+        !SUPABASE_URL ||
+        !SUPABASE_ANON_KEY ||
+        SUPABASE_URL.indexOf("PEGA_AQUI") !== -1 ||
+        SUPABASE_ANON_KEY.indexOf("PEGA_AQUI") !== -1
     ){
 
         return Promise.reject(
             new Error(
-                "Todavía no configuraste APPS_SCRIPT_URL " +
-                "en el archivo."
+                "Todavía no configuraste SUPABASE_URL / " +
+                "SUPABASE_ANON_KEY en el archivo."
             )
         );
 
     }
 
-    return fetch(APPS_SCRIPT_URL,{
+    const fn = RPC_BY_ACTION[action];
+
+    if(!fn){
+        return Promise.reject(
+            new Error("Acción desconocida: " + action)
+        );
+    }
+
+    /*
+       Los nombres de parámetro con prefijo "p_" tienen que
+       coincidir con los de las funciones SQL en
+       supabase/schema.sql.
+    */
+    const body = {};
+    if(payload.username !== undefined) body.p_username = payload.username;
+    if(payload.password !== undefined) body.p_password = payload.password;
+    if(payload.data !== undefined) body.p_data = payload.data;
+
+    return fetch(SUPABASE_URL + "/rest/v1/rpc/" + fn,{
 
         method:"POST",
 
-        /*
-           text/plain evita que el navegador mande un
-           preflight OPTIONS, que Apps Script no maneja.
-        */
         headers:{
-            "Content-Type":"text/plain;charset=utf-8"
+            "Content-Type":"application/json",
+            "apikey":SUPABASE_ANON_KEY,
+            "Authorization":"Bearer " + SUPABASE_ANON_KEY
         },
 
-        body:JSON.stringify({
-            action:action,
-            ...payload
-        })
+        body:JSON.stringify(body)
 
     })
         .then(response => response.json())
@@ -8739,6 +8768,7 @@ function apiRequest(action,payload){
 
                 throw new Error(
                     (result && result.error) ||
+                    (result && result.message) ||
                     "Error desconocido del servidor."
                 );
 
