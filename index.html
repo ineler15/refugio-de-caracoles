@@ -3822,6 +3822,15 @@ function moveSnails(){
         }
 
 
+        /* De noche los caracoles duermen: no se mueven */
+
+        if(game.night){
+
+            return;
+
+        }
+
+
         /* Buscar comida cuando hay hambre */
 
         if(
