@@ -83,7 +83,7 @@ create or replace function check_password(p_username text, p_password text)
 returns boolean
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_hash text;
@@ -108,7 +108,7 @@ create or replace function register_user(p_username text, p_password text)
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_username text := normalize_username(p_username);
@@ -145,7 +145,7 @@ create or replace function login_user(p_username text, p_password text)
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_username text := normalize_username(p_username);
@@ -165,7 +165,7 @@ create or replace function load_progress(p_username text, p_password text)
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_username text := normalize_username(p_username);
@@ -185,7 +185,7 @@ create or replace function save_progress(p_username text, p_password text, p_dat
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_username text := normalize_username(p_username);
