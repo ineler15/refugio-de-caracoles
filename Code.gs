@@ -1,18 +1,20 @@
 /**
  * REFUGIO DE CARACOLES — BACKEND + FRONTEND (Google Apps Script)
  *
- * doGet sirve el juego completo (archivo Index.html, una
- * copia de refugio_de_caracolesVask.html) para que se pueda
- * abrir directamente visitando la URL del despliegue, desde
- * cualquier dispositivo, sin necesidad de tener el archivo
- * local.
+ * doGet sirve el juego completo (archivo index.html) para que se
+ * pueda abrir directamente visitando la URL del despliegue, desde
+ * cualquier dispositivo, sin necesidad de tener el archivo local.
+ * El mismo index.html también se publica de forma independiente
+ * en GitHub Pages; en ambos casos habla con el backend de abajo
+ * vía fetch, así que este doGet es solo una vía alternativa para
+ * abrir el juego.
  *
  * doPost es la API que ese mismo HTML usa (por fetch) para
  * registrar usuarios e ir guardando/cargando el progreso de
  * cada uno como JSON dentro de una carpeta de Google Drive.
  *
  * Cómo se despliega y cómo actualizar el juego después: ver
- * INSTRUCCIONES_DESPLIEGUE.md, en la carpeta del proyecto.
+ * README.md, en la carpeta del proyecto.
  */
 
 const FOLDER_ID = "1FOQST5mWWZ8zG2I0d5AXFQIZYZUNjUBC";
@@ -76,7 +78,7 @@ function doPost(e) {
 function doGet(e) {
 
   return HtmlService
-    .createHtmlOutputFromFile("Index")
+    .createHtmlOutputFromFile("index")
     .setTitle("🐌 Refugio de Caracoles ULTRA")
     .addMetaTag("viewport", "width=device-width,initial-scale=1.0");
 
