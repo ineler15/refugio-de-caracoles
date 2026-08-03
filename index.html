@@ -2440,7 +2440,13 @@ const FOOD = {
 ========================================================= */
 
 const SPECIES_IMAGES = {
-    rojo: "assets/snails/rojo.png"
+    /*
+       "rojo" ahora usa poses SVG dinámicas (ver model()) en
+       vez de esta imagen estática, para poder reflejar sus
+       acciones (comer/dormir/feliz). Se deja assets/snails/
+       rojo.png en el repo por si se usa como miniatura fija
+       más adelante.
+    */
 };
 
 
@@ -3079,6 +3085,309 @@ function normalModel(s){
 
 
 /* =========================================================
+   MODELO DE CARACOL ADULTO — DURMIENDO
+
+   Antenas dobladas hacia abajo, ojos cerrados (arcos en vez
+   de círculos). Se usa de noche.
+========================================================= */
+
+function sleepingModel(s){
+
+    return `
+
+    <svg
+        viewBox="0 0 110 90"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <ellipse
+            cx="45"
+            cy="70"
+            rx="43"
+            ry="12"
+            fill="${s.color}"
+            stroke="#333"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="54"
+            cy="40"
+            r="29"
+            fill="${s.shell}"
+            stroke="#333"
+            stroke-width="3"
+        />
+
+        <path
+            d="
+                M54 19
+                C30 22 29 54 53 57
+                C73 59 80 38 64 30
+                C52 24 42 36 49 44
+            "
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="6"
+        />
+
+        <circle
+            cx="86"
+            cy="65"
+            r="11"
+            fill="${s.color}"
+            stroke="#333"
+            stroke-width="2"
+        />
+
+        <path
+            d="
+                M83 57
+                Q90 53 93 58
+                M89 57
+                Q96 54 98 60
+            "
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="3"
+        />
+
+        <path
+            d="M80 65 q3 3 6 0"
+            fill="none"
+            stroke="#222"
+            stroke-width="2"
+            stroke-linecap="round"
+        />
+
+        <path
+            d="M92 65 q3 3 6 0"
+            fill="none"
+            stroke="#222"
+            stroke-width="2"
+            stroke-linecap="round"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
+/* =========================================================
+   MODELO DE CARACOL ADULTO — COMIENDO
+
+   Cabeza agachada hacia el piso/comida, antenas cortas
+   apuntando hacia adelante y abajo. Se usa mientras
+   snail.pause > 0 (justo después de comer).
+========================================================= */
+
+function eatingModel(s){
+
+    return `
+
+    <svg
+        viewBox="0 0 110 90"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <ellipse
+            cx="45"
+            cy="70"
+            rx="43"
+            ry="12"
+            fill="${s.color}"
+            stroke="#333"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="54"
+            cy="40"
+            r="29"
+            fill="${s.shell}"
+            stroke="#333"
+            stroke-width="3"
+        />
+
+        <path
+            d="
+                M54 19
+                C30 22 29 54 53 57
+                C73 59 80 38 64 30
+                C52 24 42 36 49 44
+            "
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="6"
+        />
+
+        <circle
+            cx="90"
+            cy="74"
+            r="11"
+            fill="${s.color}"
+            stroke="#333"
+            stroke-width="2"
+        />
+
+        <path
+            d="
+                M86 65
+                Q89 76 85 82
+                M93 65
+                Q99 74 99 81
+            "
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="85"
+            cy="82"
+            r="2.5"
+            fill="#222"
+        />
+
+        <circle
+            cx="99"
+            cy="81"
+            r="2.5"
+            fill="#222"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
+/* =========================================================
+   MODELO DE CARACOL ADULTO — FELIZ
+
+   Antenas bien erguidas y separadas, ojos grandes con
+   brillo, mejillas sonrojadas. Se usa cuando snail.happy
+   es alto.
+========================================================= */
+
+function happyModel(s){
+
+    return `
+
+    <svg
+        viewBox="0 0 110 90"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <ellipse
+            cx="45"
+            cy="70"
+            rx="43"
+            ry="12"
+            fill="${s.color}"
+            stroke="#333"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="54"
+            cy="40"
+            r="29"
+            fill="${s.shell}"
+            stroke="#333"
+            stroke-width="3"
+        />
+
+        <path
+            d="
+                M54 19
+                C30 22 29 54 53 57
+                C73 59 80 38 64 30
+                C52 24 42 36 49 44
+            "
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="6"
+        />
+
+        <circle
+            cx="88"
+            cy="61"
+            r="11"
+            fill="${s.color}"
+            stroke="#333"
+            stroke-width="2"
+        />
+
+        <path
+            d="
+                M84 52
+                Q82 28 74 14
+                M91 52
+                Q102 30 108 16
+            "
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="3"
+        />
+
+        <ellipse
+            cx="80"
+            cy="64"
+            rx="4"
+            ry="2.5"
+            fill="#ff9db0"
+            opacity=".65"
+        />
+
+        <ellipse
+            cx="95"
+            cy="66"
+            rx="4"
+            ry="2.5"
+            fill="#ff9db0"
+            opacity=".65"
+        />
+
+        <circle
+            cx="84"
+            cy="23"
+            r="3.5"
+            fill="#222"
+        />
+
+        <circle
+            cx="85.5"
+            cy="21.5"
+            r="1.1"
+            fill="#fff"
+        />
+
+        <circle
+            cx="99"
+            cy="25"
+            r="3.5"
+            fill="#222"
+        />
+
+        <circle
+            cx="100.5"
+            cy="23.5"
+            r="1.1"
+            fill="#fff"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
+/* =========================================================
    MODELO DE BEBÉ
 ========================================================= */
 
@@ -3301,7 +3610,7 @@ function ghostModel(){
 }
 
 
-function model(s){
+function model(s,snail){
 
     if(!s){
         return "";
@@ -3326,6 +3635,27 @@ function model(s){
 
     if(s.id === "fantasma"){
         return ghostModel();
+    }
+
+    /*
+       La pose depende del estado real del caracol (si se
+       pasó una instancia). Sin snail (ej. Libro de especies,
+       que solo muestra la especie) siempre se ve en reposo.
+    */
+    if(snail){
+
+        if(snail.pause > 0){
+            return eatingModel(s);
+        }
+
+        if(game.night){
+            return sleepingModel(s);
+        }
+
+        if(snail.happy >= 80){
+            return happyModel(s);
+        }
+
     }
 
     return normalModel(s);
@@ -5098,7 +5428,7 @@ function renderTerrarium(){
                 }
 
 
-                ${model(s)}
+                ${model(s,snail)}
 
 
                 <div class="snailName">
@@ -5242,7 +5572,7 @@ function renderSnailCards(){
                     width:120px;
                     margin:auto;
                 ">
-                    ${model(s)}
+                    ${model(s,snail)}
                 </div>
 
 
