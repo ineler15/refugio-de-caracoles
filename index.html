@@ -633,6 +633,12 @@ main{
         top;
 }
 
+.snail.atHome{
+
+    display:none;
+
+}
+
 .snail svg,
 .snail img{
 
@@ -641,6 +647,34 @@ main{
     height:78px;
 
     object-fit:contain;
+
+    transform:scaleX(var(--flip,1));
+
+}
+
+@keyframes snailWalk{
+
+    0%,100%{
+        transform:
+            scaleX(var(--flip,1))
+            translateY(0);
+    }
+
+    50%{
+        transform:
+            scaleX(var(--flip,1))
+            translateY(-2px);
+    }
+
+}
+
+.snail.walking svg,
+.snail.walking img{
+
+    animation:
+        snailWalk .5s
+        ease-in-out infinite;
+
 }
 
 /*
@@ -2645,6 +2679,42 @@ const INCUBATION_TIME = 5 * 60 * 1000;
 
 const BABY_GROW_TIME = 5 * 60 * 1000;
 
+/*
+   Posición de la puerta de la casa dentro del terrario, en
+   las mismas unidades (% del contenedor) que snail.x/snail.y.
+   Coincide con #snailHouse (right:4%; bottom:3%).
+*/
+
+const HOUSE_X = 88;
+
+const HOUSE_Y = 90;
+
+const HOUSE_ARRIVE_DISTANCE = 4;
+
+/*
+   La puerta queda fuera del recuadro donde vagabundean de
+   día (x:3-84, y:5-61 — esa zona es solo el "estanque" de
+   arriba). De noche dejamos que crucen hasta la zona de
+   tierra de abajo, si no entrarían por el techo en vez de
+   por la puerta.
+*/
+
+const HOUSE_WALK_MIN_X = 3;
+
+const HOUSE_WALK_MAX_X = 95;
+
+const HOUSE_WALK_MIN_Y = 5;
+
+const HOUSE_WALK_MAX_Y = 94;
+
+/*
+   Más rápido que el vagabundeo normal (.045/tick): tienen
+   que cruzar el terrario entero y llegar a la casa dentro
+   de los 60s que dura la noche.
+*/
+
+const HOUSE_WALK_SPEED = .5;
+
 const FOOD = {
 
     pepino:"🥒",
@@ -3915,7 +3985,23 @@ function createSnail(type){
 
         petPoseTime:0,
 
-        pause:0
+        pause:0,
+
+        atHome:false,
+
+        moving:false,
+
+        /*
+           Desplazamiento propio junto a la puerta: sin esto
+           todos los caracoles caminan al mismo punto exacto
+           y quedan amontonados encima unos de otros.
+        */
+
+        homeOffsetX:
+            -Math.random() * 5,
+
+        homeOffsetY:
+            -Math.random() * 4
 
     };
 
@@ -4026,6 +4112,9 @@ function moveSnails(){
 
     game.snails.forEach(snail => {
 
+        snail.moving = false;
+
+
         /* Pausa después de comer */
 
         if(snail.pause > 0){
@@ -4037,9 +4126,72 @@ function moveSnails(){
         }
 
 
-        /* De noche los caracoles duermen: no se mueven */
+        /* De noche los caracoles vuelven a casa a dormir */
 
         if(game.night){
+
+            if(snail.atHome){
+
+                return;
+
+            }
+
+
+            const homeDx =
+                HOUSE_X +
+                (snail.homeOffsetX || 0) -
+                snail.x;
+
+            const homeDy =
+                HOUSE_Y +
+                (snail.homeOffsetY || 0) -
+                snail.y;
+
+            const homeDistance =
+                Math.sqrt(
+                    homeDx * homeDx +
+                    homeDy * homeDy
+                );
+
+
+            /* Llegó a la casa: entra y desaparece */
+
+            if(homeDistance < HOUSE_ARRIVE_DISTANCE){
+
+                snail.atHome = true;
+
+                return;
+
+            }
+
+
+            snail.vx =
+                (homeDx / homeDistance)
+                * HOUSE_WALK_SPEED;
+
+            snail.vy =
+                (homeDy / homeDistance)
+                * HOUSE_WALK_SPEED;
+
+            snail.x += snail.vx;
+
+            snail.y += snail.vy;
+
+            snail.x =
+                clamp(
+                    snail.x,
+                    HOUSE_WALK_MIN_X,
+                    HOUSE_WALK_MAX_X
+                );
+
+            snail.y =
+                clamp(
+                    snail.y,
+                    HOUSE_WALK_MIN_Y,
+                    HOUSE_WALK_MAX_Y
+                );
+
+            snail.moving = true;
 
             return;
 
@@ -4097,13 +4249,19 @@ function moveSnails(){
 
             if(distance > 0){
 
-                snail.x +=
+                snail.vx =
                     (dx / distance)
                     * .045;
 
-                snail.y +=
+                snail.vy =
                     (dy / distance)
                     * .045;
+
+                snail.x += snail.vx;
+
+                snail.y += snail.vy;
+
+                snail.moving = true;
 
             }
 
@@ -4116,6 +4274,8 @@ function moveSnails(){
             snail.x += snail.vx;
 
             snail.y += snail.vy;
+
+            snail.moving = true;
 
 
             /* Cambiar dirección ocasionalmente */
@@ -4199,6 +4359,22 @@ function eatFood(snail,food){
 
     if(!snail || !food){
         return;
+    }
+
+
+    /*
+       Si otro caracol ya se comió esta comida en este mismo
+       tick (dos caracoles pueden apuntar al mismo objetivo),
+       su referencia en snail.target queda desactualizada.
+       Sin esta comprobación se duplican las recompensas.
+    */
+
+    if(!game.foods.some(f => f.id === food.id)){
+
+        snail.target = null;
+
+        return;
+
     }
 
 
@@ -4479,6 +4655,17 @@ function updatePositions(){
                 snail.y + "%";
 
 
+            element.classList.toggle(
+                "atHome",
+                !!snail.atHome
+            );
+
+            element.classList.toggle(
+                "walking",
+                !!snail.moving
+            );
+
+
             /*
                La pose (reposo/comiendo/durmiendo/feliz) puede
                cambiar sin que pase ninguna acción que dispare
@@ -4521,17 +4708,10 @@ function updatePositions(){
                también se invertiría el texto del nombre.
             */
 
-            const snailSvg =
-                element.querySelector("svg");
-
-            if(snailSvg){
-
-                snailSvg.style.transform =
-                    snail.vx < 0
-                    ? "scaleX(-1)"
-                    : "scaleX(1)";
-
-            }
+            element.style.setProperty(
+                "--flip",
+                snail.vx < 0 ? -1 : 1
+            );
 
 
             const bubble =
@@ -5680,11 +5860,16 @@ function renderTerrarium(){
             return `
 
             <div
-                class="snail"
+                class="snail${
+                    snail.atHome ? " atHome" : ""
+                }${
+                    snail.moving ? " walking" : ""
+                }"
                 data-snail-id="${snail.id}"
                 style="
                     left:${snail.x}%;
                     top:${snail.y}%;
+                    --flip:${snail.vx < 0 ? -1 : 1};
                 "
                 onclick="petSnail('${snail.id}')"
                 ondblclick="talkSnail('${snail.id}')"
@@ -6954,6 +7139,43 @@ function updateClock(){
 
         game.night =
             isNight;
+
+
+        /* Amaneció: los caracoles salen de la casa */
+
+        if(!game.night){
+
+            game.snails.forEach(snail => {
+
+                snail.atHome = false;
+
+
+                /*
+                   Reaparecen en un punto nuevo del recuadro de
+                   vagabundeo diurno (el mismo rango con el que
+                   nacen en createSnail) en vez de arrastrar la
+                   posición junto a la puerta, mucho más abajo:
+                   como estuvieron ocultos toda la noche, no hay
+                   ningún salto visible que evitar, y así salen
+                   ya dispersos por su cuenta en vez de los seis
+                   amontonados en la misma esquina.
+                */
+
+                snail.x =
+                    8 + Math.random() * 72;
+
+                snail.y =
+                    15 + Math.random() * 42;
+
+                snail.vx =
+                    (Math.random() - .5) * .3;
+
+                snail.vy =
+                    (Math.random() - .5) * .15;
+
+            });
+
+        }
 
 
         const terrarium =
@@ -8957,6 +9179,30 @@ function normalizeGame(){
 
     if(!Array.isArray(game.snails))
         game.snails = [];
+
+
+    /*
+       Partidas guardadas antes de que existiera el sistema
+       de "ir a casa a dormir" no tienen estos campos. Sin
+       homeOffsetX/Y todos los caracoles caminan al mismo
+       punto exacto junto a la puerta y quedan amontonados.
+    */
+
+    game.snails.forEach(snail => {
+
+        if(typeof snail.atHome !== "boolean")
+            snail.atHome = false;
+
+        if(typeof snail.moving !== "boolean")
+            snail.moving = false;
+
+        if(typeof snail.homeOffsetX !== "number")
+            snail.homeOffsetX = -Math.random() * 5;
+
+        if(typeof snail.homeOffsetY !== "number")
+            snail.homeOffsetY = -Math.random() * 4;
+
+    });
 
 
     if(!Array.isArray(game.eggs))
