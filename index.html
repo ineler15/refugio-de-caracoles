@@ -1960,6 +1960,10 @@ main{
         🎯 Misiones
     </button>
 
+    <button onclick="showPanel('tradesPanel')">
+        🔄 Intercambios
+    </button>
+
     <button onclick="showPanel('optionsPanel')">
         ⚙️ Opciones
     </button>
@@ -2618,6 +2622,24 @@ main{
 </section>
 
 
+<section id="tradesPanel" class="panel">
+
+<h2>🔄 Intercambios</h2>
+
+<p>
+    Publicá qué caracol das y qué especie querés a cambio.
+    En cuanto otro jugador publique lo complementario
+    (te da esa especie y pide la tuya), el intercambio se
+    hace solo.
+</p>
+
+<div
+    id="trades">
+</div>
+
+</section>
+
+
 <!-- =====================================================
      OPCIONES
 ===================================================== -->
@@ -3244,6 +3266,13 @@ function showPanel(id){
 
     render();
 
+
+    if(id === "tradesPanel"){
+
+        refreshTrades();
+
+    }
+
 }
 
 
@@ -3379,10 +3408,13 @@ function bodyFill(s){
 
 
 /* =========================================================
-   MODELO DE CARACOL ADULTO
+   MODELO DE CARACOL ADULTO — NEUTRAL
+
+   Antenas rectas, ojos simples sin brillo ni sonrojo. Se usa
+   cuando la felicidad es media (ni alta ni baja).
 ========================================================= */
 
-function normalModel(s){
+function neutralModel(s){
 
     return `
 
@@ -3457,6 +3489,120 @@ function normalModel(s){
             cy="27"
             r="3"
             fill="#222"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
+/* =========================================================
+   MODELO DE CARACOL ADULTO — TRISTE
+
+   Antenas caídas hacia adelante (en vez de erguidas hacia
+   arriba), cejas de preocupación y una lágrima. Se usa cuando
+   la felicidad es baja.
+========================================================= */
+
+function sadModel(s){
+
+    return `
+
+    <svg
+        viewBox="0 0 110 90"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        ${gradientDefs(s)}
+
+        <ellipse
+            cx="45"
+            cy="70"
+            rx="43"
+            ry="12"
+            fill="${bodyFill(s)}"
+            stroke="#333"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="54"
+            cy="40"
+            r="29"
+            fill="${shellFill(s)}"
+            stroke="#333"
+            stroke-width="3"
+        />
+
+        <path
+            d="
+                M54 19
+                C30 22 29 54 53 57
+                C73 59 80 38 64 30
+                C52 24 42 36 49 44
+            "
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="6"
+        />
+
+        <circle
+            cx="88"
+            cy="65"
+            r="11"
+            fill="${bodyFill(s)}"
+            stroke="#333"
+            stroke-width="2"
+        />
+
+        <path
+            d="
+                M82 57
+                Q80 42 74 33
+                M95 57
+                Q100 44 102 35
+            "
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="3"
+        />
+
+        <path
+            d="M81 40 Q85 37 89 40"
+            fill="none"
+            stroke="#333"
+            stroke-width="2"
+            stroke-linecap="round"
+        />
+
+        <path
+            d="M96 41 Q100 38 104 41"
+            fill="none"
+            stroke="#333"
+            stroke-width="2"
+            stroke-linecap="round"
+        />
+
+        <circle
+            cx="85"
+            cy="45"
+            r="2.8"
+            fill="#222"
+        />
+
+        <circle
+            cx="100"
+            cy="46"
+            r="2.8"
+            fill="#222"
+        />
+
+        <path
+            d="M85 49 Q83 56 86 60 Q88 57 85 49 Z"
+            fill="#7ec8e3"
+            opacity=".85"
         />
 
     </svg>
@@ -3642,6 +3788,23 @@ function eatingModel(s){
             cy="81"
             r="2.5"
             fill="#222"
+        />
+
+        <ellipse
+            cx="92"
+            cy="90"
+            rx="4"
+            ry="2.6"
+            fill="#7a2f22"
+        />
+
+        <circle
+            cx="76"
+            cy="87"
+            r="2.6"
+            fill="#8bc34a"
+            stroke="#333"
+            stroke-width="1"
         />
 
     </svg>
@@ -3897,7 +4060,11 @@ function poseKeyFor(snail){
         return "happy";
     }
 
-    return "idle";
+    if(snail.happy < 35){
+        return "sad";
+    }
+
+    return "neutral";
 
 }
 
@@ -3938,8 +4105,14 @@ function model(s,snail){
         case "sleeping":
             return sleepingModel(s);
 
+        case "sad":
+            return sadModel(s);
+
+        case "neutral":
+            return neutralModel(s);
+
         default:
-            return normalModel(s);
+            return happyModel(s);
 
     }
 
@@ -4730,6 +4903,20 @@ function updatePositions(){
 
             }
 
+            /*
+               Sin este else el globo de diálogo/corazón se
+               queda pegado en pantalla para siempre una vez
+               que snail.bubble se vacía (updateBubbles), ya
+               que este camino rápido nunca lo recreaba desde
+               cero como sí hace un render() completo.
+            */
+
+            else if(bubble){
+
+                bubble.remove();
+
+            }
+
         }
     );
 
@@ -5212,6 +5399,17 @@ function openEnvelope(type){
     }
 
 
+    if(!e.species.length){
+
+        message(
+            "😕 Ese sobre no tiene especies disponibles todavía."
+        );
+
+        return;
+
+    }
+
+
     game.coins -= price;
 
 
@@ -5261,9 +5459,15 @@ function openEnvelope(type){
     }
 
 
+    const eggsGained =
+        (egg1 ? 1 : 0) + (egg2 ? 1 : 0);
+
     message(
         "✉️ Has comprado un sobre. " +
-        "🥚🥚 Has conseguido 2 huevos."
+        "🥚".repeat(eggsGained) +
+        " Has conseguido " +
+        eggsGained +
+        (eggsGained === 1 ? " huevo." : " huevos.")
     );
 
 
@@ -5440,14 +5644,6 @@ function eggCard(egg){
     }
 
 
-    if(egg.status === "hatched"){
-
-        status =
-            "🐌 Eclosionado";
-
-    }
-
-
     return `
 
     <div
@@ -5519,6 +5715,30 @@ function placeEggInNursery(id){
 
         message(
             "🥚 Ese huevo ya está en proceso."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       renderNursery() posiciona cada huevo incubando en
+       left:15+index*25% — el 5to (índice 4) ya cae en 115%,
+       fuera del criadero (overflow:hidden). Sin este límite
+       seguiría incubando y eclosionando, solo que invisible.
+    */
+
+    const incubatingCount =
+        game.eggs.filter(
+            e => e.status === "incubating"
+        ).length;
+
+    if(incubatingCount >= 4){
+
+        message(
+            "🌱 El criadero ya tiene 4 huevos incubando " +
+            "a la vez. Esperá a que eclosione alguno."
         );
 
         return;
@@ -5663,11 +5883,17 @@ function hatchEgg(egg){
     }
 
 
-    egg.status =
-        "hatched";
+    /*
+       El huevo ya cumplió su función (nace el bebé más abajo):
+       se saca de game.eggs por completo en vez de dejarlo
+       marcado "hatched", si no la lista de huevos acumula
+       tarjetas muertas para siempre.
+    */
 
-
-    egg.placed = false;
+    game.eggs =
+        game.eggs.filter(
+            e => e.id !== egg.id
+        );
 
 
     game.nursery =
@@ -5760,10 +5986,24 @@ function growBaby(baby){
         MAX_SNAILS
     ){
 
-        message(
-            "🐌 El refugio está lleno. " +
-            "El bebé esperará."
-        );
+        /*
+           Sin esta bandera, mientras el refugio siga lleno
+           este aviso se repite cada segundo (updateBabies
+           corre cada 1s) y su timeout de 4s del aviso global
+           se reinicia en cada llamada a message(), ahogando
+           cualquier otra notificación indefinidamente.
+        */
+
+        if(!baby.fullWarned){
+
+            message(
+                "🐌 El refugio está lleno. " +
+                "El bebé esperará."
+            );
+
+            baby.fullWarned = true;
+
+        }
 
         return;
 
@@ -6615,6 +6855,147 @@ function renderNursery(){
    MISIONES
 ========================================================= */
 
+function renderTrades(){
+
+    const container =
+        document.getElementById("trades");
+
+    if(!container){
+        return;
+    }
+
+
+    const snailOptions =
+        game.snails.map((snail,index) => {
+
+            const s = species(snail.type);
+
+            return (
+                `<option value="${snail.id}">` +
+                (s ? s.name : snail.type) +
+                " #" + (index + 1) +
+                `</option>`
+            );
+
+        }).join("");
+
+    const speciesOptions =
+        SPECIES.map(s => {
+
+            return `<option value="${s.id}">${s.name}</option>`;
+
+        }).join("");
+
+
+    const boardItems =
+        tradeBoard.length
+        ? tradeBoard.map(offer => {
+
+            const give = species(offer.giveSpecies);
+            const want = species(offer.wantSpecies);
+
+            return `
+
+            <div class="card">
+                <p><b>${offer.username}</b></p>
+                <p>
+                    Da: ${give ? give.name : offer.giveSpecies}
+                    → Busca: ${want ? want.name : offer.wantSpecies}
+                </p>
+            </div>
+
+            `;
+
+        }).join("")
+        : "<p>No hay ofertas de otros jugadores todavía.</p>";
+
+
+    const myItems =
+        myTradeOffers.length
+        ? myTradeOffers.map(offer => {
+
+            const give = species(offer.giveSpecies);
+            const want = species(offer.wantSpecies);
+
+            return `
+
+            <div class="card">
+                <p>
+                    Das: ${give ? give.name : offer.giveSpecies}
+                    → Pedís: ${want ? want.name : offer.wantSpecies}
+                </p>
+                <button onclick="cancelTradeOffer('${offer.id}')">
+                    🗑️ Cancelar
+                </button>
+            </div>
+
+            `;
+
+        }).join("")
+        : "<p>No tenés ofertas publicadas.</p>";
+
+
+    container.innerHTML = `
+
+    <div class="card">
+
+        <h3>📝 Publicar oferta</h3>
+
+        ${
+            game.snails.length
+            ? `
+            <label>Doy:</label>
+            <select id="tradeSnailSelect">
+                ${snailOptions}
+            </select>
+
+            <label>Quiero:</label>
+            <select id="tradeWantSelect">
+                ${speciesOptions}
+            </select>
+
+            <button onclick="submitTradeOffer()">
+                📤 Publicar oferta
+            </button>
+            `
+            : "<p>Necesitás al menos un caracol para poder ofrecer algo.</p>"
+        }
+
+    </div>
+
+    <h3>📋 Tablero (ofertas de otros)</h3>
+
+    ${boardItems}
+
+    <h3>📤 Mis ofertas</h3>
+
+    ${myItems}
+
+    `;
+
+}
+
+
+function submitTradeOffer(){
+
+    const snailSelect =
+        document.getElementById("tradeSnailSelect");
+
+    const wantSelect =
+        document.getElementById("tradeWantSelect");
+
+    if(!snailSelect || !wantSelect){
+        return;
+    }
+
+    createTradeOffer(
+        snailSelect.value,
+        wantSelect.value
+    );
+
+}
+
+
 function renderMissions(){
 
     const container =
@@ -6904,9 +7285,20 @@ function saveGame(silent){
 
     try{
 
+        /*
+           Se guarda envuelto junto con el momento del guardado
+           (syncedAt) para poder distinguir, si más adelante hay
+           que recuperar este caché, qué caracoles son más
+           nuevos que la última vez que se supo sincronizada la
+           partida — ver reconcileSnailsWithServer.
+        */
+
         localStorage.setItem(
             localCacheKey(),
-            JSON.stringify(game)
+            JSON.stringify({
+                data:game,
+                syncedAt:Date.now()
+            })
         );
 
         if(!silent){
@@ -6950,6 +7342,10 @@ function loadGame(){
         .then(loaded => {
 
             applyLoadedGame(loaded);
+
+            normalizeGame();
+
+            applyNightMode();
 
             message(
                 "📂 ¡Partida cargada!"
@@ -7030,6 +7426,8 @@ function applyLoadedGame(loaded){
             : []
 
     };
+
+    lastSyncAt = Date.now();
 
 }
 
@@ -8285,6 +8683,77 @@ function growObstacleShape(startX,startY){
 }
 
 
+/*
+   Flood-fill desde la cabeza para confirmar que la comida
+   sigue siendo alcanzable con este bloque de obstáculos
+   agregado. Sin esto, un bloque orgánico (growObstacleShape)
+   puede, en un caso poco frecuente, rodear la comida por
+   completo, dejándola sellada para el resto de la partida
+   sin ninguna forma de detectarlo o arreglarlo.
+*/
+
+function isFoodReachable(candidateCells){
+
+    const blocked =
+        new Set(
+            candidateCells.map(
+                cell => cell.x + "," + cell.y
+            )
+        );
+
+    snakeBody.forEach(segment => {
+        blocked.add(segment.x + "," + segment.y);
+    });
+
+    const start = snakeBody[0];
+    const visited =
+        new Set([start.x + "," + start.y]);
+
+    const queue = [start];
+
+    while(queue.length){
+
+        const cell = queue.shift();
+
+        if(
+            cell.x === snakeFood.x &&
+            cell.y === snakeFood.y
+        ){
+            return true;
+        }
+
+        const neighbors = [
+            {x:cell.x + 1,y:cell.y},
+            {x:cell.x - 1,y:cell.y},
+            {x:cell.x,y:cell.y + 1},
+            {x:cell.x,y:cell.y - 1}
+        ];
+
+        neighbors.forEach(next => {
+
+            const key = next.x + "," + next.y;
+
+            if(
+                next.x < 0 || next.x >= snakeCols ||
+                next.y < 0 || next.y >= snakeRows ||
+                blocked.has(key) ||
+                visited.has(key)
+            ){
+                return;
+            }
+
+            visited.add(key);
+            queue.push(next);
+
+        });
+
+    }
+
+    return false;
+
+}
+
+
 function generateSnakeObstacles(blockCount){
 
     const obstacles = [];
@@ -8362,7 +8831,8 @@ function generateSnakeObstacles(blockCount){
         if(
             !overlapsSnake &&
             !overlapsFood &&
-            !overlapsExisting
+            !overlapsExisting &&
+            isFoodReachable(obstacles.concat(blockCells))
         ){
 
             obstacles.push(...blockCells);
@@ -9008,6 +9478,22 @@ function stopMiniGames(){
     }
 
 
+    /*
+       Sin esto, si el jugador navega a otro panel justo
+       cuando sube de nivel (banner visible, juego en pausa),
+       snakeAwaitingContinue ya se puso en false arriba, así
+       que resumeSnakeAfterLevel() queda como no-op — el
+       banner se ve pegado y no se puede cerrar al volver.
+    */
+
+    const levelBanner =
+        document.getElementById("snakeLevelBanner");
+
+    if(levelBanner){
+        levelBanner.classList.add("hidden");
+    }
+
+
     if(snakeKeyHandler){
 
         document.removeEventListener(
@@ -9060,7 +9546,10 @@ window.addEventListener(
 
             localStorage.setItem(
                 localCacheKey(),
-                JSON.stringify(game)
+                JSON.stringify({
+                    data:game,
+                    syncedAt:Date.now()
+                })
             );
 
         }catch(error){
@@ -9364,12 +9853,19 @@ function keepNurseryInside(){
             }
 
 
+            /*
+               ?? en vez de || : con || una posición 0
+               (perfectamente válida) se trataba como "sin
+               definir" y saltaba al valor por defecto en vez
+               de recortarse suavemente al borde.
+            */
+
             item.x =
                 Math.max(
                     5,
                     Math.min(
                         78,
-                        item.x || 20
+                        item.x ?? 20
                     )
                 );
 
@@ -9379,7 +9875,7 @@ function keepNurseryInside(){
                     15,
                     Math.min(
                         55,
-                        item.y || 25
+                        item.y ?? 25
                     )
                 );
 
@@ -9569,7 +10065,11 @@ const RPC_BY_ACTION = {
     register: "register_user",
     login: "login_user",
     load: "load_progress",
-    save: "save_progress"
+    save: "save_progress",
+    trade_create: "create_trade_offer",
+    trade_board: "list_trade_board",
+    trade_mine: "list_my_trade_offers",
+    trade_cancel: "cancel_trade_offer"
 };
 
 
@@ -9643,6 +10143,9 @@ function apiRequest(action,payload){
     if(payload.username !== undefined) body.p_username = payload.username;
     if(payload.password !== undefined) body.p_password = payload.password;
     if(payload.data !== undefined) body.p_data = payload.data;
+    if(payload.snailId !== undefined) body.p_snail_id = payload.snailId;
+    if(payload.wantSpecies !== undefined) body.p_want_species = payload.wantSpecies;
+    if(payload.offerId !== undefined) body.p_offer_id = payload.offerId;
 
     return fetch(SUPABASE_URL + "/rest/v1/rpc/" + fn,{
 
@@ -9689,20 +10192,266 @@ function loadGameFromCloud(username,password){
 }
 
 
+/*
+   Último momento en que se supo que el `snails` local coincidía
+   con el del servidor (login, load, o sync exitoso). Sirve para
+   distinguir, al reconciliar, un caracol "nuevo" creado en esta
+   sesión (ej. un bebé recién crecido) de uno que ya no está en
+   el servidor porque salió por un intercambio mientras tanto.
+*/
+
+let lastSyncAt = Date.now();
+
+
+function snailIdTimestamp(id){
+
+    const parts = String(id).split("_");
+
+    const ts = Number(parts[1]);
+
+    return isNaN(ts) ? 0 : ts;
+
+}
+
+
+function reconcileSnailsWithServer(serverSnails){
+
+    const serverIds =
+        new Set(serverSnails.map(s => s.id));
+
+    const localById =
+        new Map(game.snails.map(s => [s.id,s]));
+
+    /*
+       Base: los caracoles del servidor (única fuente de verdad
+       sobre quién tiene qué caracol, ya que ahí es donde se
+       resuelven los intercambios), pero con los datos locales
+       más frescos (stats/posición) cuando el caracol sigue
+       siendo mío.
+    */
+
+    const merged =
+        serverSnails.map(
+            s => localById.get(s.id) || s
+        );
+
+    /*
+       Sumar los que tengo localmente y el servidor no (todavía)
+       tiene, pero solo si son más nuevos que la última vez que
+       sincronicé: si son viejos y el servidor ya no los tiene,
+       es porque salieron por un intercambio, no hay que
+       revivirlos.
+    */
+
+    game.snails.forEach(snail => {
+
+        if(
+            !serverIds.has(snail.id) &&
+            snailIdTimestamp(snail.id) > lastSyncAt
+        ){
+
+            merged.push(snail);
+
+        }
+
+    });
+
+    game.snails = merged;
+
+}
+
+
 function syncGameToCloud(){
 
     if(!currentUser || !currentPassword){
         return;
     }
 
-    apiRequest("save",{
+    apiRequest("load",{
         username:currentUser,
-        password:currentPassword,
-        data:game
+        password:currentPassword
+    }).then(result => {
+
+        reconcileSnailsWithServer(
+            (result.data && result.data.snails) || []
+        );
+
+        return apiRequest("save",{
+            username:currentUser,
+            password:currentPassword,
+            data:game
+        });
+
+    }).then(() => {
+
+        lastSyncAt = Date.now();
+
     }).catch(error => {
 
         console.warn(
             "No se pudo sincronizar con la nube:",
+            error
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   INTERCAMBIOS ENTRE JUGADORES
+
+   Publicás "doy tal caracol, quiero tal especie". Si ya
+   existe (o se publica después) la oferta complementaria de
+   otro usuario, el intercambio se ejecuta solo en el
+   backend — acá solo reflejamos el resultado.
+========================================================= */
+
+let tradeBoard = [];
+
+let myTradeOffers = [];
+
+
+function createTradeOffer(snailId,wantSpecies){
+
+    if(!currentUser || !currentPassword){
+        return Promise.resolve();
+    }
+
+    return apiRequest("trade_create",{
+
+        username:currentUser,
+        password:currentPassword,
+        snailId:snailId,
+        wantSpecies:wantSpecies
+
+    }).then(result => {
+
+        if(result.matched){
+
+            game.snails =
+                game.snails.filter(
+                    snail => snail.id !== result.removedSnailId
+                );
+
+            game.snails.push(result.receivedSnail);
+
+            const gotSpecies =
+                species(result.receivedSnail.type);
+
+            message(
+                "🔄 ¡Intercambio con " +
+                result.partner +
+                "! Recibiste un caracol " +
+                (gotSpecies ? gotSpecies.name : result.receivedSnail.type) +
+                "."
+            );
+
+            saveGame(true);
+
+            render();
+
+        }
+        else{
+
+            message(
+                "📋 Oferta publicada. Se completará solo " +
+                "cuando alguien tenga lo que buscás."
+            );
+
+        }
+
+        return refreshTrades();
+
+    }).catch(error => {
+
+        message("❌ " + error.message);
+
+    });
+
+}
+
+
+function loadTradeBoard(){
+
+    if(!currentUser || !currentPassword){
+        return Promise.resolve([]);
+    }
+
+    return apiRequest("trade_board",{
+        username:currentUser,
+        password:currentPassword
+    }).then(result => {
+
+        tradeBoard = result.data || [];
+
+        return tradeBoard;
+
+    });
+
+}
+
+
+function loadMyTradeOffers(){
+
+    if(!currentUser || !currentPassword){
+        return Promise.resolve([]);
+    }
+
+    return apiRequest("trade_mine",{
+        username:currentUser,
+        password:currentPassword
+    }).then(result => {
+
+        myTradeOffers = result.data || [];
+
+        return myTradeOffers;
+
+    });
+
+}
+
+
+function cancelTradeOffer(offerId){
+
+    if(!currentUser || !currentPassword){
+        return;
+    }
+
+    apiRequest("trade_cancel",{
+
+        username:currentUser,
+        password:currentPassword,
+        offerId:offerId
+
+    }).then(() => {
+
+        message("🗑️ Oferta cancelada.");
+
+        refreshTrades();
+
+    }).catch(error => {
+
+        message("❌ " + error.message);
+
+    });
+
+}
+
+
+function refreshTrades(){
+
+    return Promise.all([
+        loadTradeBoard(),
+        loadMyTradeOffers()
+    ]).then(() => {
+
+        renderTrades();
+
+    }).catch(error => {
+
+        console.warn(
+            "No se pudo actualizar los intercambios:",
             error
         );
 
@@ -9753,6 +10502,17 @@ function setAuthMessage(text,type){
     }
 
 }
+
+
+/*
+   Rastrea si hay un login/registro en curso, para que cambiar
+   de pestaña (setAuthMode) no reactive el botón de submit
+   mientras esa request sigue esperando respuesta — si no, se
+   puede disparar una segunda request superpuesta que compita
+   con la primera por currentUser/currentPassword.
+*/
+
+let authRequestInFlight = false;
 
 
 function setAuthLoading(isLoading){
@@ -9824,7 +10584,9 @@ function setAuthMode(mode){
 
     }
 
-    setAuthLoading(false);
+    if(!authRequestInFlight){
+        setAuthLoading(false);
+    }
 
     setAuthMessage("");
 
@@ -9898,12 +10660,16 @@ function handleAuthSubmit(event){
 /* =========================================================
    TUTORIAL DE BIENVENIDA
 
-   Se marca pendingTutorial cuando se crea una cuenta nueva
+   Se marca pendingTutorial (con el username registrado, no
+   solo true/false) cuando se crea una cuenta nueva
    (registerUser) y se muestra recién en el primer enterGame()
-   de esa cuenta, ya con el juego cargado detrás.
+   de ESE MISMO usuario. Sin atarlo al username, en un
+   navegador compartido un usuario existente que inicia
+   sesión justo después de que otro se registró vería el
+   tutorial de "cuenta nueva" que no es suyo.
 ========================================================= */
 
-let pendingTutorial = false;
+let pendingTutorial = null;
 
 let tutorialStepIndex = 0;
 
@@ -10076,13 +10842,14 @@ function closeTutorial(){
 
 function registerUser(username,password){
 
+    authRequestInFlight = true;
     setAuthLoading(true);
     setAuthMessage("");
 
     apiRequest("register",{username,password})
         .then(() => {
 
-            pendingTutorial = true;
+            pendingTutorial = username;
 
             setAuthMessage(
                 "✅ Cuenta creada. ¡Iniciá sesión!",
@@ -10110,6 +10877,7 @@ function registerUser(username,password){
         })
         .finally(() => {
 
+            authRequestInFlight = false;
             setAuthLoading(false);
 
         });
@@ -10123,6 +10891,7 @@ function registerUser(username,password){
 
 function loginUser(username,password){
 
+    authRequestInFlight = true;
     setAuthLoading(true);
     setAuthMessage("");
 
@@ -10131,6 +10900,9 @@ function loginUser(username,password){
 
             currentUser = username;
             currentPassword = password;
+
+            let cachedGame = null;
+            let cachedSyncedAt = 0;
 
             try{
 
@@ -10145,9 +10917,29 @@ function loginUser(username,password){
                     );
 
                 if(cached){
-                    applyLoadedGame(
-                        JSON.parse(cached)
-                    );
+
+                    const parsed =
+                        JSON.parse(cached);
+
+                    /*
+                       Formato nuevo: {data,syncedAt}. Formato
+                       viejo (de antes de este cambio): el
+                       objeto de partida directo, sin envolver.
+                    */
+
+                    if(parsed && parsed.data){
+
+                        cachedGame = parsed.data;
+                        cachedSyncedAt = parsed.syncedAt || 0;
+
+                    }
+                    else{
+
+                        cachedGame = parsed;
+                        cachedSyncedAt = 0;
+
+                    }
+
                 }
 
             }catch(error){
@@ -10156,9 +10948,41 @@ function loginUser(username,password){
 
             }
 
-            if(result.data){
-                applyLoadedGame(result.data);
+
+            /*
+               La nube manda primero: ahí es donde se resuelven
+               los intercambios entre jugadores, aplicarla antes
+               que el caché local evita pisar un intercambio
+               reciente con una copia vieja de este navegador.
+            */
+
+            applyLoadedGame(result.data || {});
+
+
+            /*
+               El caché local solo sirve para recuperar progreso
+               que nunca llegó a sincronizarse (ej. se cortó la
+               conexión antes del próximo autoguardado). Se
+               reconcilia contra la nube en vez de aplicarse a
+               ciegas encima, igual que un autoguardado normal.
+            */
+
+            if(
+                cachedGame &&
+                Array.isArray(cachedGame.snails)
+            ){
+
+                game.snails = cachedGame.snails;
+
+                lastSyncAt = cachedSyncedAt;
+
+                reconcileSnailsWithServer(
+                    (result.data && result.data.snails) || []
+                );
+
             }
+
+            lastSyncAt = Date.now();
 
             enterGame();
 
@@ -10173,6 +10997,7 @@ function loginUser(username,password){
         })
         .finally(() => {
 
+            authRequestInFlight = false;
             setAuthLoading(false);
 
         });
@@ -10228,11 +11053,23 @@ function enterGame(){
 
     saveGame(true);
 
-    if(pendingTutorial){
+    if(pendingTutorial === currentUser){
 
-        pendingTutorial = false;
+        pendingTutorial = null;
 
         showTutorial();
+
+    }
+    else if(pendingTutorial){
+
+        /*
+           Quedó pendiente para OTRO usuario (se registró una
+           cuenta y después, en el mismo navegador, inició
+           sesión un usuario distinto): no es para este, pero
+           tampoco hay que dejarlo colgado para el próximo.
+        */
+
+        pendingTutorial = null;
 
     }
 
