@@ -1,0 +1,9193 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width,initial-scale=1.0"
+>
+
+<title>🐌 Refugio de Caracoles ULTRA</title>
+
+<style>
+
+/* =========================================================
+   TOKENS DE DISEÑO
+
+   Paleta de terrario: verde hoja como acento principal,
+   terracota para madera/tierra, dorado reservado para
+   rareza y momentos especiales. Tipografía "rounded"
+   para títulos (encaja con el tono cálido del refugio)
+   y system-ui para texto de lectura.
+========================================================= */
+
+:root{
+
+    --ink:#1f3a24;
+    --ink-soft:#4d6b53;
+
+    --bg:#eef6ea;
+    --surface:#ffffff;
+    --surface-2:#f4faf1;
+    --border:#cfe4c9;
+
+    --accent:#2f8f4e;
+    --accent-dark:#1f6636;
+
+    --accent-2:#c97b3d;
+    --accent-2-dark:#8a4f22;
+
+    --gold:#d9a441;
+    --danger:#b3261e;
+
+    --shadow-sm:0 2px 8px rgba(31,58,36,.14);
+    --shadow-md:0 4px 14px rgba(31,58,36,.16);
+    --shadow-lg:0 12px 30px rgba(31,58,36,.24);
+
+    --radius-lg:20px;
+    --radius-md:14px;
+    --radius-pill:999px;
+
+    --font-display:
+        ui-rounded,
+        "SF Pro Rounded",
+        "Segoe UI Rounded",
+        Nunito,
+        system-ui,
+        sans-serif;
+
+    --font-body:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+
+*{
+    box-sizing:border-box;
+    user-select:none;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+}
+
+body{
+    font-family:var(--font-body);
+    background:var(--bg);
+    color:var(--ink);
+    overflow-x:hidden;
+}
+
+button,
+input{
+    font-family:inherit;
+}
+
+button:focus-visible,
+input:focus-visible{
+    outline:3px solid var(--gold);
+    outline-offset:2px;
+}
+
+@media (prefers-reduced-motion:reduce){
+
+    *{
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+        transition-duration:.01ms !important;
+    }
+
+}
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+header{
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent-dark),
+            var(--accent),
+            var(--accent-dark)
+        );
+
+    color:white;
+
+    padding:16px;
+
+    text-align:center;
+
+    font-family:var(--font-display);
+
+    font-size:26px;
+
+    font-weight:bold;
+
+    box-shadow:
+        var(--shadow-md);
+
+    position:relative;
+
+    z-index:200;
+}
+
+header .subtitle{
+    display:block;
+
+    margin-top:4px;
+
+    font-size:12px;
+
+    font-family:var(--font-body);
+
+    opacity:.85;
+
+    font-weight:normal;
+}
+
+.sessionBadge{
+
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+
+    margin-top:6px;
+
+    font-size:11px;
+    font-family:var(--font-body);
+    font-weight:normal;
+    opacity:.9;
+}
+
+/* =========================================================
+   ESTADÍSTICAS
+========================================================= */
+
+#stats{
+
+    background:var(--surface);
+
+    padding:10px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:10px;
+
+    flex-wrap:wrap;
+
+    font-weight:bold;
+
+    font-variant-numeric:tabular-nums;
+
+    box-shadow:
+        var(--shadow-sm);
+
+    position:relative;
+
+    z-index:190;
+}
+
+.stat{
+
+    background:var(--surface-2);
+
+    border:2px solid var(--border);
+
+    border-radius:var(--radius-pill);
+
+    padding:7px 13px;
+
+    min-width:70px;
+
+    text-align:center;
+
+}
+
+.statIcon{
+    display:block;
+    font-size:17px;
+}
+
+.statValue{
+    display:block;
+    margin-top:2px;
+}
+
+/* =========================================================
+   NAVEGACIÓN
+========================================================= */
+
+nav{
+
+    background:#b8dfb5;
+
+    padding:8px;
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    justify-content:center;
+
+    gap:5px;
+
+    position:sticky;
+
+    top:0;
+
+    z-index:180;
+
+    box-shadow:
+        var(--shadow-sm);
+}
+
+button{
+
+    border:0;
+
+    border-radius:var(--radius-pill);
+
+    padding:9px 15px;
+
+    background:var(--accent);
+
+    color:white;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    margin:3px;
+
+    transition:
+        transform .12s ease,
+        filter .12s ease,
+        box-shadow .12s ease;
+}
+
+button:hover{
+
+    filter:brightness(1.08);
+
+    box-shadow:
+        var(--shadow-sm);
+}
+
+button:active{
+
+    transform:scale(.95);
+
+}
+
+/* =========================================================
+   CONTENIDO
+========================================================= */
+
+main{
+
+    max-width:1100px;
+
+    margin:auto;
+
+    padding:12px;
+}
+
+.panel{
+
+    display:none;
+}
+
+.panel.active{
+
+    display:block;
+
+    animation:
+        panelAppear .2s ease;
+}
+
+@keyframes panelAppear{
+
+    from{
+        opacity:0;
+        transform:translateY(5px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+
+.panel h2{
+
+    font-family:var(--font-display);
+
+    color:var(--ink);
+
+}
+
+/* =========================================================
+   TARJETAS
+========================================================= */
+
+.card{
+
+    background:var(--surface);
+
+    padding:15px;
+
+    margin:10px 0;
+
+    border-radius:var(--radius-lg);
+
+    box-shadow:
+        var(--shadow-sm);
+}
+
+.grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(190px,1fr)
+        );
+
+    gap:10px;
+}
+
+/* =========================================================
+   MENSAJES
+========================================================= */
+
+#message{
+
+    font-weight:bold;
+
+    min-height:22px;
+}
+
+.globalMessage{
+
+    position:fixed;
+
+    top:16px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    z-index:300;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    max-width:min(560px,calc(100vw - 24px));
+
+    padding:12px 10px 12px 18px;
+
+    text-align:left;
+
+    font-weight:bold;
+
+    color:white;
+
+    background:var(--accent-dark);
+
+    box-shadow:var(--shadow-lg);
+
+    border-radius:var(--radius-md);
+
+    animation:toastIn .25s ease;
+}
+
+@keyframes toastIn{
+
+    from{
+        opacity:0;
+        transform:translateX(-50%) translateY(-10px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateX(-50%) translateY(0);
+    }
+
+}
+
+.globalMessageText{
+    flex:1;
+}
+
+.globalMessageClose{
+
+    background:transparent;
+
+    border:0;
+
+    margin:0;
+
+    padding:3px 8px;
+
+    color:white;
+
+    font-size:13px;
+
+    font-weight:bold;
+
+    line-height:1;
+
+    border-radius:var(--radius-pill);
+
+    cursor:pointer;
+}
+
+.globalMessageClose:hover{
+    background:rgba(255,255,255,.2);
+}
+
+/* =========================================================
+   BARRAS DE ESTADO
+========================================================= */
+
+.bar{
+
+    height:11px;
+
+    background:var(--border);
+
+    border-radius:10px;
+
+    overflow:hidden;
+
+    margin-top:4px;
+}
+
+.fill{
+
+    height:100%;
+
+    width:0;
+
+    transition:
+        width .25s ease;
+}
+
+.hunger{
+    background:#e59a32;
+}
+
+.energy{
+    background:#4397d0;
+}
+
+.happy{
+    background:#e17fa6;
+}
+
+.trust{
+    background:#9064c5;
+}
+
+/* =========================================================
+   TERRARIO
+========================================================= */
+
+#terrarium{
+
+    position:relative;
+
+    width:100%;
+
+    height:min(560px,60vh);
+
+    min-height:280px;
+
+    overflow:hidden;
+
+    border:9px solid var(--accent-2-dark);
+
+    border-radius:25px;
+
+    background:
+
+        linear-gradient(
+            to bottom,
+
+            #bcecb8 0%,
+            #bcecb8 68%,
+
+            #a96f45 68%,
+            #a96f45 100%
+        );
+
+    touch-action:none;
+
+    box-shadow:
+        inset 0 0 20px #0003,
+        var(--shadow-md);
+}
+
+#terrarium.night{
+
+    background:
+
+        linear-gradient(
+            to bottom,
+
+            #29385f 0%,
+            #29385f 68%,
+
+            #62442f 68%,
+            #62442f 100%
+        );
+}
+
+/* =========================================================
+   DECORACIÓN DEL TERRARIO
+   En la nueva versión la reemplazaremos progresivamente
+   por SVG.
+========================================================= */
+
+.decor{
+
+    position:absolute;
+
+    pointer-events:none;
+
+    font-size:45px;
+
+    z-index:1;
+}
+
+.d1{
+    left:4%;
+    top:10%;
+}
+
+.d2{
+    left:40%;
+    top:7%;
+}
+
+.d3{
+    right:5%;
+    top:11%;
+}
+
+.d4{
+    left:20%;
+    bottom:3%;
+}
+
+.d5{
+    right:35%;
+    bottom:3%;
+}
+
+/* =========================================================
+   CARACOLES
+========================================================= */
+
+.snail{
+
+    position:absolute;
+
+    width:82px;
+
+    height:82px;
+
+    z-index:10;
+
+    cursor:pointer;
+
+    will-change:
+        left,
+        top;
+}
+
+.snail svg{
+
+    width:82px;
+
+    height:78px;
+}
+
+.snailName{
+
+    position:absolute;
+
+    top:70px;
+
+    left:50%;
+
+    transform:
+        translateX(-50%);
+
+    background:#ffffffe8;
+
+    border-radius:7px;
+
+    padding:3px 6px;
+
+    font-size:10px;
+
+    white-space:nowrap;
+}
+
+.bubble{
+
+    position:absolute;
+
+    top:-35px;
+
+    left:10px;
+
+    background:white;
+
+    border:2px solid #555;
+
+    border-radius:10px;
+
+    padding:4px 7px;
+
+    font-size:11px;
+
+    white-space:nowrap;
+
+    z-index:30;
+
+    animation:
+        bubblePop .2s ease;
+}
+
+@keyframes bubblePop{
+
+    from{
+        transform:scale(.8);
+        opacity:0;
+    }
+
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+
+}
+
+/* =========================================================
+   COMIDA
+========================================================= */
+
+.food{
+
+    position:absolute;
+
+    font-size:38px;
+
+    cursor:pointer;
+
+    z-index:8;
+
+    touch-action:none;
+}
+
+/* =========================================================
+   SOBRE
+========================================================= */
+
+.envelopeSvg{
+
+    width:150px;
+
+    height:190px;
+
+    display:block;
+
+    margin:auto;
+}
+
+.envelopeButton{
+
+    background:#8d5b35;
+}
+
+/* =========================================================
+   HUEVOS
+========================================================= */
+
+.eggSvg{
+
+    width:100px;
+
+    height:120px;
+
+    display:block;
+
+    margin:auto;
+}
+
+/* =========================================================
+   CRIADERO
+========================================================= */
+
+#nursery{
+
+    position:relative;
+
+    height:min(430px,50vh);
+
+    min-height:240px;
+
+    overflow:hidden;
+
+    border:8px solid var(--accent-2-dark);
+
+    border-radius:25px;
+
+    background:
+
+        linear-gradient(
+            to bottom,
+
+            #bdecb8 0%,
+            #bdecb8 68%,
+
+            #a96f45 68%,
+            #a96f45 100%
+        );
+
+    box-shadow:
+        inset 0 0 20px #0003,
+        0 5px 14px #0003;
+}
+
+.nurseryPlant{
+
+    position:absolute;
+
+    width:55px;
+
+    height:55px;
+
+    pointer-events:none;
+
+    z-index:2;
+}
+
+.nurseryPlant svg{
+
+    width:100%;
+
+    height:100%;
+}
+
+.baby{
+
+    position:absolute;
+
+    width:80px;
+
+    height:80px;
+
+    z-index:10;
+
+    transition:
+        left .3s,
+        top .3s;
+}
+
+.baby svg{
+
+    width:80px;
+
+    height:80px;
+}
+
+/* =========================================================
+   INCUBACIÓN
+========================================================= */
+
+.nurseryEgg{
+
+    position:absolute;
+
+    width:75px;
+
+    height:90px;
+
+    z-index:8;
+
+    cursor:pointer;
+
+    transform-origin:
+        center bottom;
+}
+
+.nurseryEgg svg{
+
+    width:100%;
+
+    height:100%;
+}
+
+.incubating{
+
+    animation:
+        eggBreath 1.8s ease-in-out infinite;
+}
+
+@keyframes eggBreath{
+
+    0%,
+    100%{
+        transform:
+            scale(1)
+            rotate(0deg);
+    }
+
+    50%{
+        transform:
+            scale(1.04)
+            rotate(-2deg);
+    }
+}
+
+.hatching{
+
+    animation:
+        eggHatch .8s ease forwards;
+}
+
+@keyframes eggHatch{
+
+    0%{
+        transform:
+            scale(1)
+            rotate(0);
+    }
+
+    35%{
+        transform:
+            scale(1.08)
+            rotate(-5deg);
+    }
+
+    65%{
+        transform:
+            scale(.95)
+            rotate(5deg);
+    }
+
+    100%{
+        transform:
+            scale(0);
+        opacity:0;
+    }
+}
+
+.incubationPanel{
+
+    background:var(--surface);
+
+    padding:14px;
+
+    border-radius:var(--radius-lg);
+
+    margin-top:12px;
+
+    box-shadow:
+        var(--shadow-sm);
+}
+
+.incubationBar{
+
+    width:100%;
+
+    height:16px;
+
+    background:#dce8d9;
+
+    border-radius:20px;
+
+    overflow:hidden;
+}
+
+.incubationFill{
+
+    height:100%;
+
+    width:0%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #68b85b,
+            #b8df68,
+            #68b85b
+        );
+
+    transition:
+        width .3s ease;
+}
+
+.incubationText{
+
+    text-align:center;
+
+    font-weight:bold;
+
+    font-variant-numeric:tabular-nums;
+
+    margin-top:7px;
+}
+
+/* =========================================================
+   MINIJUEGOS
+========================================================= */
+
+.gamebox{
+
+    height:250px;
+
+    position:relative;
+
+    overflow:hidden;
+
+    border:5px solid #477da0;
+
+    border-radius:18px;
+
+    background:#bde7ff;
+}
+
+.snakeBox{
+
+    background:#1f3a24;
+
+    border-color:var(--accent-dark);
+
+    touch-action:none;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+}
+
+.snakeBox canvas{
+
+    /*
+       Sin width/height:100% a propósito: el canvas usa su
+       tamaño real en píxeles (calculado en JS para que las
+       celdas salgan cuadradas) y queda centrado acá adentro
+       por flexbox. Si se estirara por CSS, las celdas
+       cuadradas se verían otra vez como rectángulos.
+    */
+
+    display:block;
+}
+
+.keyboardHint{
+
+    margin:4px 0 0;
+}
+
+.touchControls{
+
+    display:none;
+
+    position:absolute;
+
+    right:8px;
+
+    bottom:8px;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:4px;
+
+    z-index:5;
+}
+
+.touchRow{
+
+    display:flex;
+
+    gap:36px;
+}
+
+.touchBtn{
+
+    width:38px;
+
+    height:38px;
+
+    padding:0;
+
+    margin:0;
+
+    font-size:16px;
+
+    line-height:1;
+
+    background:#ffffffcc;
+
+    color:var(--ink);
+
+    box-shadow:var(--shadow-sm);
+
+    touch-action:manipulation;
+}
+
+.touchBtn:active{
+    background:#ffffff;
+}
+
+.snakeLevelBanner{
+
+    position:absolute;
+
+    inset:0;
+
+    z-index:15;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:16px;
+
+    text-align:center;
+
+    background:rgba(15,26,15,.78);
+
+    color:white;
+
+    font-weight:bold;
+
+    font-size:16px;
+
+    animation:panelAppear .2s ease;
+}
+
+/* =========================================================
+   UTILIDADES
+========================================================= */
+
+.big{
+
+    text-align:center;
+
+    font-size:55px;
+}
+
+.small{
+
+    font-size:12px;
+
+    opacity:.75;
+}
+
+.hidden{
+
+    display:none !important;
+}
+
+/* =========================================================
+   PANTALLA DE INICIO DE SESIÓN
+========================================================= */
+
+#loginScreen{
+
+    position:fixed;
+    inset:0;
+
+    z-index:500;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    background:
+        radial-gradient(
+            circle at 30% 20%,
+            #eafbe4,
+            var(--bg) 65%
+        );
+}
+
+.authCard{
+
+    width:100%;
+    max-width:380px;
+
+    background:var(--surface);
+
+    border-radius:var(--radius-lg);
+
+    box-shadow:var(--shadow-lg);
+
+    padding:30px 26px;
+}
+
+.authBrand{
+
+    text-align:center;
+
+    margin-bottom:18px;
+}
+
+.authBrand .authEmoji{
+
+    font-size:44px;
+
+    display:block;
+}
+
+.authBrand h1{
+
+    font-family:var(--font-display);
+
+    font-size:21px;
+
+    margin:6px 0 2px;
+
+    color:var(--ink);
+}
+
+.authBrand p{
+
+    margin:0;
+
+    font-size:13px;
+
+    color:var(--ink-soft);
+}
+
+.authTabs{
+
+    display:flex;
+
+    gap:4px;
+
+    background:var(--surface-2);
+
+    border:1px solid var(--border);
+
+    border-radius:var(--radius-pill);
+
+    padding:4px;
+
+    margin-bottom:18px;
+}
+
+.authTab{
+
+    flex:1;
+
+    border:0;
+
+    background:transparent;
+
+    color:var(--ink-soft);
+
+    padding:8px 10px;
+
+    margin:0;
+
+    border-radius:var(--radius-pill);
+
+    font-weight:bold;
+
+    font-size:13px;
+
+    cursor:pointer;
+}
+
+.authTab.active{
+
+    background:var(--accent);
+
+    color:white;
+
+    box-shadow:var(--shadow-sm);
+}
+
+.authField{
+
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+
+    margin-bottom:14px;
+}
+
+.authField label{
+
+    font-size:11px;
+
+    font-weight:bold;
+
+    letter-spacing:.03em;
+
+    text-transform:uppercase;
+
+    color:var(--ink-soft);
+}
+
+.authField input{
+
+    font-size:15px;
+
+    padding:10px 12px;
+
+    border-radius:var(--radius-md);
+
+    border:1.5px solid var(--border);
+
+    background:var(--surface-2);
+
+    color:var(--ink);
+}
+
+.authSubmit{
+
+    width:100%;
+
+    margin:8px 0 0;
+
+    padding:12px;
+
+    font-size:15px;
+}
+
+.authSwitch{
+
+    display:block;
+
+    width:100%;
+
+    margin-top:10px;
+
+    background:transparent;
+
+    color:var(--accent-dark);
+
+    text-decoration:underline;
+
+    font-size:12px;
+
+    font-weight:normal;
+
+    padding:4px;
+}
+
+.authMessage{
+
+    min-height:18px;
+
+    font-size:13px;
+
+    font-weight:bold;
+
+    text-align:center;
+
+    margin-top:12px;
+}
+
+.authMessage.error{
+    color:var(--danger);
+}
+
+.authMessage.success{
+    color:var(--accent-dark);
+}
+
+.authSpinner{
+
+    display:inline-block;
+
+    width:13px;
+    height:13px;
+
+    border:2px solid #ffffff80;
+
+    border-top-color:#fff;
+
+    border-radius:50%;
+
+    animation:authSpin .7s linear infinite;
+
+    vertical-align:-2px;
+
+    margin-right:6px;
+}
+
+@keyframes authSpin{
+    to{ transform:rotate(360deg); }
+}
+
+/* =========================================================
+   RESPONSIVE — TABLET
+========================================================= */
+
+@media (max-width:900px){
+
+    header{
+        font-size:22px;
+        padding:14px 12px;
+    }
+
+    #stats{
+        gap:8px;
+        padding:8px;
+    }
+
+    .stat{
+        min-width:58px;
+        padding:6px 10px;
+    }
+
+    main{
+        padding:10px;
+    }
+
+    #terrarium{
+        height:min(440px,55vh);
+    }
+
+    #nursery{
+        height:min(340px,46vh);
+    }
+
+    .touchControls{
+        display:flex;
+    }
+
+    .keyboardHint{
+        display:none;
+    }
+
+}
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+========================================================= */
+
+@media (max-width:600px){
+
+    header{
+        font-size:18px;
+        padding:12px 10px;
+    }
+
+    header .subtitle{
+        font-size:10px;
+    }
+
+    nav{
+        flex-wrap:nowrap;
+        overflow-x:auto;
+        justify-content:flex-start;
+        padding:6px 8px;
+        -webkit-overflow-scrolling:touch;
+    }
+
+    nav button{
+        flex:0 0 auto;
+        font-size:12px;
+        padding:8px 11px;
+        white-space:nowrap;
+    }
+
+    #stats{
+        gap:6px;
+        padding:7px;
+    }
+
+    .stat{
+        min-width:50px;
+        padding:5px 8px;
+    }
+
+    .statIcon{
+        font-size:14px;
+    }
+
+    .statValue{
+        font-size:11px;
+    }
+
+    main{
+        padding:8px;
+    }
+
+    .card{
+        padding:12px;
+        border-radius:16px;
+    }
+
+    #terrarium{
+        height:min(360px,48vh);
+        min-height:230px;
+        border-width:6px;
+    }
+
+    #nursery{
+        height:min(290px,42vh);
+        min-height:210px;
+        border-width:6px;
+    }
+
+    .gamebox{
+        height:190px;
+    }
+
+    .snail{
+        width:64px;
+        height:64px;
+    }
+
+    .snail svg{
+        width:64px;
+        height:60px;
+    }
+
+    .authCard{
+        padding:22px 18px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- =====================================================
+     INICIO DE SESIÓN
+===================================================== -->
+
+<div id="loginScreen">
+
+    <div class="authCard">
+
+        <div class="authBrand">
+            <span class="authEmoji">🐌</span>
+            <h1>Refugio de Caracoles</h1>
+            <p>Tu progreso se guarda en la nube.</p>
+        </div>
+
+        <div class="authTabs">
+
+            <button
+                type="button"
+                id="authTabLogin"
+                class="authTab active"
+                onclick="setAuthMode('login')"
+            >
+                Iniciar sesión
+            </button>
+
+            <button
+                type="button"
+                id="authTabRegister"
+                class="authTab"
+                onclick="setAuthMode('register')"
+            >
+                Crear cuenta
+            </button>
+
+        </div>
+
+        <form id="authForm" onsubmit="return handleAuthSubmit(event)">
+
+            <div class="authField">
+                <label for="authUsername">Usuario</label>
+                <input
+                    id="authUsername"
+                    name="username"
+                    type="text"
+                    autocomplete="username"
+                    maxlength="24"
+                    required
+                >
+            </div>
+
+            <div class="authField">
+                <label for="authPassword">Contraseña</label>
+                <input
+                    id="authPassword"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    minlength="4"
+                    maxlength="64"
+                    required
+                >
+            </div>
+
+            <button
+                type="submit"
+                id="authSubmitButton"
+                class="authSubmit"
+            >
+                Iniciar sesión
+            </button>
+
+            <button
+                type="button"
+                class="authSwitch"
+                onclick="toggleAuthMode()"
+            >
+                ¿No tenés cuenta? Creá una
+            </button>
+
+        </form>
+
+        <p
+            id="authMessage"
+            class="authMessage"
+        ></p>
+
+    </div>
+
+</div>
+
+<!-- =====================================================
+     JUEGO (oculto hasta iniciar sesión)
+===================================================== -->
+
+<div id="gameRoot" class="hidden">
+
+<header>
+
+    🐌 Refugio de Caracoles
+
+    <span class="subtitle">
+        🌿 Edición ULTRA 🌿
+    </span>
+
+    <span class="sessionBadge">
+        👤 <span id="sessionUser">invitado</span>
+    </span>
+
+</header>
+
+<div id="stats">
+
+    <div class="stat">
+        <span class="statIcon">🪙</span>
+        <span class="statValue" id="coins">300</span>
+    </div>
+
+    <div class="stat">
+        <span class="statIcon">🐌</span>
+        <span class="statValue" id="count">0/50</span>
+    </div>
+
+    <div class="stat">
+        <span class="statIcon">🥚</span>
+        <span class="statValue" id="eggCount">0</span>
+    </div>
+
+    <div class="stat">
+        <span class="statIcon">✉️</span>
+        <span class="statValue" id="envCount">0</span>
+    </div>
+
+    <div class="stat">
+        <span class="statIcon">📖</span>
+        <span class="statValue" id="discCount">0</span>
+    </div>
+
+    <div class="stat">
+        <span class="statIcon" id="clock">☀️</span>
+        <span class="statValue">Día</span>
+    </div>
+
+</div>
+
+<nav>
+
+    <button onclick="showPanel('terrariumPanel')">
+        🏡 Terrario
+    </button>
+
+    <button onclick="showPanel('snailsPanel')">
+        🐌 Caracoles
+    </button>
+
+    <button onclick="showPanel('bookPanel')">
+        📖 Libro
+    </button>
+
+    <button onclick="showPanel('shopPanel')">
+        🛒 Sobres
+    </button>
+
+    <button onclick="showPanel('eggsPanel')">
+        🥚 Huevos
+    </button>
+
+    <button onclick="showPanel('nurseryPanel')">
+        🌱 Criadero
+    </button>
+
+    <button onclick="showPanel('gamesPanel')">
+        🎮 Minijuegos
+    </button>
+
+    <button onclick="showPanel('missionsPanel')">
+        🎯 Misiones
+    </button>
+
+    <button onclick="showPanel('optionsPanel')">
+        ⚙️ Opciones
+    </button>
+
+</nav>
+
+<div id="globalMessage" class="globalMessage hidden">
+
+    <span id="globalMessageText"></span>
+
+    <button
+        type="button"
+        class="globalMessageClose"
+        onclick="hideGlobalMessage()"
+        aria-label="Cerrar aviso"
+    >
+        ✕
+    </button>
+
+</div>
+
+<main>
+<style>
+
+/* =========================
+   CASA DEL TERRARIO
+========================= */
+
+#snailHouse{
+    position:absolute;
+    right:4%;
+    bottom:3%;
+    width:190px;
+    height:155px;
+    z-index:6;
+    pointer-events:none;
+}
+
+#snailHouse svg{
+    width:100%;
+    height:100%;
+    display:block;
+}
+
+#sleepingSnails{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+}
+
+.sleepingSnail{
+    position:absolute;
+    font-size:22px;
+    animation:sleepBubble 2s infinite ease-in-out;
+}
+
+@keyframes sleepBubble{
+
+    0%,100%{
+        transform:translateY(0);
+        opacity:.75;
+    }
+
+    50%{
+        transform:translateY(-5px);
+        opacity:1;
+    }
+
+}
+
+#terrarium.night #snailHouse{
+    filter:brightness(.72);
+}
+
+@media (max-width:600px){
+
+    #snailHouse{
+        width:130px;
+        height:106px;
+    }
+
+}
+
+</style>
+
+
+<!-- =====================================================
+     TERRARIO
+===================================================== -->
+
+<section id="terrariumPanel" class="panel active">
+
+    <h2>🏡 Terrario</h2>
+
+    <div id="terrarium">
+
+        <!-- Decoraciones -->
+
+        <div class="decor d1">🌿</div>
+        <div class="decor d2">🌱</div>
+        <div class="decor d3">🍃</div>
+        <div class="decor d4">🌿</div>
+        <div class="decor d5">🌱</div>
+
+
+        <!-- =========================
+             CASA DE LOS CARACOLES
+        ========================== -->
+
+        <div id="snailHouse">
+
+            <svg
+                viewBox="0 0 260 210"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+
+                <!-- Sombra -->
+
+                <ellipse
+                    cx="130"
+                    cy="195"
+                    rx="105"
+                    ry="12"
+                    fill="#0003"
+                />
+
+
+                <!-- Cuerpo de la casa -->
+
+                <rect
+                    x="45"
+                    y="80"
+                    width="170"
+                    height="105"
+                    rx="8"
+                    fill="#c9824d"
+                    stroke="#51301d"
+                    stroke-width="7"
+                />
+
+
+                <!-- Techo -->
+
+                <path
+                    d="M25 88 L130 18 L235 88 Z"
+                    fill="#8f4931"
+                    stroke="#51301d"
+                    stroke-width="7"
+                    stroke-linejoin="round"
+                />
+
+
+                <!-- Ventana -->
+
+                <rect
+                    x="68"
+                    y="105"
+                    width="45"
+                    height="45"
+                    rx="7"
+                    fill="#aee7e8"
+                    stroke="#51301d"
+                    stroke-width="6"
+                />
+
+                <path
+                    d="M90 107 V148
+                       M70 127 H111"
+                    stroke="#51301d"
+                    stroke-width="4"
+                />
+
+
+                <!-- Puerta -->
+
+                <path
+                    d="M142 185
+                       V130
+                       Q142 110 160 110
+                       Q178 110 178 130
+                       V185 Z"
+                    fill="#684225"
+                    stroke="#432817"
+                    stroke-width="6"
+                />
+
+
+                <!-- Manija -->
+
+                <circle
+                    cx="166"
+                    cy="151"
+                    r="4"
+                    fill="#e5c15b"
+                />
+
+
+                <!-- Letrero -->
+
+                <rect
+                    x="91"
+                    y="57"
+                    width="78"
+                    height="28"
+                    rx="8"
+                    fill="#fff8dc"
+                    stroke="#51301d"
+                    stroke-width="4"
+                />
+
+                <text
+                    x="130"
+                    y="77"
+                    text-anchor="middle"
+                    font-size="16"
+                    font-weight="bold"
+                    fill="#51301d"
+                >
+                    CASA
+                </text>
+
+            </svg>
+
+
+            <!-- Aquí aparecerán los Zzz -->
+
+            <div id="sleepingSnails"></div>
+
+        </div>
+
+
+        <!-- Comida -->
+
+        <div id="foodLayer"></div>
+
+
+        <!-- Caracoles -->
+
+        <div id="snailLayer"></div>
+
+    </div>
+
+
+    <!-- =========================
+         COMIDA
+    ========================== -->
+
+    <div class="card">
+
+        <h3>🍽️ Comida</h3>
+
+        <button onclick="dropFood('pepino')">
+            🥒 Pepino
+        </button>
+
+        <button onclick="dropFood('zanahoria')">
+            🥕 Zanahoria
+        </button>
+
+        <button onclick="dropFood('manzana')">
+            🍎 Manzana
+        </button>
+
+        <button onclick="dropFood('lechuga')">
+            🥬 Lechuga
+        </button>
+
+        <button onclick="dropFood('fresa')">
+            🍓 Fresa
+        </button>
+
+        <p id="message">
+            🐌 Bienvenido al refugio.
+        </p>
+
+    </div>
+
+</section>
+
+<!-- =====================================================
+     CARACOLES
+===================================================== -->
+
+<section id="snailsPanel" class="panel">
+
+<h2>🐌 Mis caracoles</h2>
+
+<div
+    id="snailCards"
+    class="grid">
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     LIBRO
+===================================================== -->
+
+<section id="bookPanel" class="panel">
+
+<h2>📖 Libro de especies</h2>
+
+<div
+    id="book"
+    class="grid">
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     SOBRES
+===================================================== -->
+
+<section id="shopPanel" class="panel">
+
+<h2>✉️ Sobres de figuritas</h2>
+
+<div class="card">
+
+    <p>
+        Cada sobre contiene exactamente
+        <b>2 huevos</b>.
+    </p>
+
+</div>
+
+<div
+    id="envelopeShop"
+    class="grid">
+</div>
+
+<div class="card">
+
+    <h3>📦 Mis sobres</h3>
+
+    <div
+        id="envelopeInventory"
+        class="grid">
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     HUEVOS
+===================================================== -->
+
+<section id="eggsPanel" class="panel">
+
+<h2>🥚 Mis huevos</h2>
+
+<div class="card">
+
+    <p>
+        Lleva tus huevos al
+        <b>Criadero</b> para incubarlos.
+    </p>
+
+</div>
+
+<div
+    id="eggs"
+    class="grid">
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     CRIADERO
+===================================================== -->
+
+<section id="nurseryPanel" class="panel">
+
+<h2>🌱 Criadero</h2>
+
+<p>
+    Aquí se incuban los huevos y crecen
+    los caracoles bebés.
+</p>
+
+<div id="nursery">
+
+    <!-- Luz ambiental -->
+
+    <div
+        class="incubatorHeat"
+        style="
+            left:50%;
+            top:18%;
+            transform:translate(-50%,-50%);
+        ">
+    </div>
+
+
+    <!-- Plantas -->
+
+    <div
+        class="nurseryPlant"
+        style="
+            left:5%;
+            top:12%;
+        ">
+        🌿
+    </div>
+
+    <div
+        class="nurseryPlant"
+        style="
+            left:78%;
+            top:17%;
+        ">
+        🌱
+    </div>
+
+    <div
+        class="nurseryPlant"
+        style="
+            left:44%;
+            top:6%;
+        ">
+        🍃
+    </div>
+
+    <div
+        class="nurseryPlant"
+        style="
+            left:13%;
+            bottom:7%;
+        ">
+        🌿
+    </div>
+
+    <div
+        class="nurseryPlant"
+        style="
+            right:10%;
+            bottom:7%;
+        ">
+        🌱
+    </div>
+
+
+    <!-- Aquí aparecen huevos y bebés -->
+
+    <div id="nurseryEggs"></div>
+
+    <div id="nurserySnails"></div>
+
+</div>
+
+
+<!-- Información de incubación -->
+
+<div
+    id="nurseryInfo"
+    class="incubationPanel">
+
+    <h3>🥚 Incubación</h3>
+
+    <p>
+        Coloca un huevo aquí para comenzar.
+    </p>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     MINIJUEGOS
+===================================================== -->
+
+<section id="gamesPanel" class="panel">
+
+<h2>🎮 Minijuegos</h2>
+
+
+<div class="card">
+
+    <h3>🥕 Atrapa comida</h3>
+
+    <button onclick="foodGame()">
+        ▶️ Jugar
+    </button>
+
+    <div
+        id="foodGameBox"
+        class="gamebox">
+    </div>
+
+    <p>
+        Puntos:
+        <b id="foodScore">0</b>
+        · Mejor:
+        <b id="foodBest">0</b>
+    </p>
+
+</div>
+
+
+<div class="card">
+
+    <h3>⭐ Atrapa estrellas</h3>
+
+    <button onclick="starGame()">
+        ▶️ Jugar
+    </button>
+
+    <div
+        id="starGameBox"
+        class="gamebox">
+    </div>
+
+    <p>
+        Puntos:
+        <b id="starScore">0</b>
+        · Mejor:
+        <b id="starBest">0</b>
+    </p>
+
+</div>
+
+
+<div class="card">
+
+    <h3>🐍 Snake</h3>
+
+    <button onclick="snakeGame()">
+        ▶️ Jugar
+    </button>
+
+    <button
+        type="button"
+        id="snakeMuteButton"
+        onclick="toggleSnakeMute()"
+        style="background:var(--accent-2);"
+    >
+        🔊 Sonido
+    </button>
+
+    <p class="small keyboardHint">
+        Usá las flechas ⬆️➡️⬇️⬅️ del teclado para moverte.
+    </p>
+
+    <div
+        id="snakeGameBox"
+        class="gamebox snakeBox">
+
+        <canvas id="snakeCanvas"></canvas>
+
+        <div
+            id="snakeLevelBanner"
+            class="snakeLevelBanner hidden"
+            onclick="resumeSnakeAfterLevel()"
+        >
+            <span id="snakeLevelBannerText"></span>
+        </div>
+
+        <div
+            id="snakeReviveBanner"
+            class="snakeLevelBanner hidden"
+        >
+            <div>
+
+                <span id="snakeReviveBannerText"></span>
+
+                <br><br>
+
+                <button
+                    type="button"
+                    onclick="reviveSnake()"
+                >
+                    🔁 Revivir (-50 🪙)
+                </button>
+
+                <button
+                    type="button"
+                    onclick="declineSnakeRevive()"
+                    style="background:var(--accent-2);"
+                >
+                    🏳️ Terminar
+                </button>
+
+            </div>
+        </div>
+
+        <div id="snakeTouchControls" class="touchControls">
+
+            <button
+                type="button"
+                class="touchBtn touchUp"
+                onclick="snakeSetDirection('up')"
+                aria-label="Arriba"
+            >▲</button>
+
+            <div class="touchRow">
+
+                <button
+                    type="button"
+                    class="touchBtn"
+                    onclick="snakeSetDirection('left')"
+                    aria-label="Izquierda"
+                >◀</button>
+
+                <button
+                    type="button"
+                    class="touchBtn"
+                    onclick="snakeSetDirection('right')"
+                    aria-label="Derecha"
+                >▶</button>
+
+            </div>
+
+            <button
+                type="button"
+                class="touchBtn touchDown"
+                onclick="snakeSetDirection('down')"
+                aria-label="Abajo"
+            >▼</button>
+
+        </div>
+
+    </div>
+
+    <p>
+        Puntos:
+        <b id="snakeScore">0</b>
+        · Mejor:
+        <b id="snakeBest">0</b>
+        · Nivel:
+        <b id="snakeLevelDisplay">1</b>
+    </p>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     MISIONES
+===================================================== -->
+
+<section id="missionsPanel" class="panel">
+
+<h2>🎯 Misiones</h2>
+
+<div
+    id="missions">
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     OPCIONES
+===================================================== -->
+
+<section id="optionsPanel" class="panel">
+
+<h2>⚙️ Opciones</h2>
+
+<div class="card">
+
+    <p>
+        👤 Conectado como
+        <b id="optionsUser">invitado</b>
+    </p>
+
+    <button onclick="saveGame()">
+        💾 Guardar partida
+    </button>
+
+    <button onclick="loadGame()">
+        📂 Cargar partida
+    </button>
+
+    <button onclick="resetGame()">
+        🗑️ Reiniciar partida
+    </button>
+
+    <button
+        id="logoutButton"
+        onclick="logoutUser()"
+        style="background:var(--accent-2);"
+    >
+        🚪 Cerrar sesión
+    </button>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+<!-- fin de #gameRoot -->
+<script>
+
+/* =========================================================
+   REFUGIO DE CARACOLES ULTRA
+   SISTEMA PRINCIPAL
+========================================================= */
+
+
+/* =========================================================
+   CONFIGURACIÓN
+========================================================= */
+
+const MAX_SNAILS = 50;
+
+const INCUBATION_TIME = 5 * 60 * 1000;
+
+const BABY_GROW_TIME = 5 * 60 * 1000;
+
+const FOOD = {
+
+    pepino:"🥒",
+
+    zanahoria:"🥕",
+
+    manzana:"🍎",
+
+    lechuga:"🥬",
+
+    fresa:"🍓"
+
+};
+
+
+/* =========================================================
+   ESPECIES
+========================================================= */
+
+const SPECIES = [
+
+{
+    id:"rojo",
+    name:"Rojo",
+    emoji:null,
+    color:"#e53935",
+    shell:"#a51212",
+    rarity:1,
+    favorite:"zanahoria"
+},
+
+{
+    id:"azul",
+    name:"Azul",
+    emoji:null,
+    color:"#348fe5",
+    shell:"#14549e",
+    rarity:1,
+    favorite:"pepino"
+},
+
+{
+    id:"verde",
+    name:"Verde",
+    emoji:null,
+    color:"#43a84a",
+    shell:"#176622",
+    rarity:1,
+    favorite:"lechuga"
+},
+
+{
+    id:"amarillo",
+    name:"Amarillo",
+    emoji:null,
+    color:"#f4d329",
+    shell:"#a98b05",
+    rarity:1,
+    favorite:"manzana"
+},
+
+{
+    id:"naranja",
+    name:"Naranja",
+    emoji:null,
+    color:"#ff8738",
+    shell:"#b84910",
+    rarity:1,
+    favorite:"zanahoria"
+},
+
+{
+    id:"rosa",
+    name:"Rosa",
+    emoji:null,
+    color:"#f38eaf",
+    shell:"#b83c69",
+    rarity:1,
+    favorite:"fresa"
+},
+
+{
+    id:"marron",
+    name:"Marrón",
+    emoji:null,
+    color:"#9b673f",
+    shell:"#61351d",
+    rarity:1,
+    favorite:"lechuga"
+},
+
+{
+    id:"blanco",
+    name:"Blanco",
+    emoji:null,
+    color:"#eeeeee",
+    shell:"#aaaaaa",
+    rarity:1,
+    favorite:"lechuga"
+},
+
+{
+    id:"violeta",
+    name:"Violeta",
+    emoji:"💜",
+    color:"#9d4bd0",
+    shell:"#5e208c",
+    rarity:2,
+    favorite:"fresa"
+},
+
+{
+    id:"turquesa",
+    name:"Turquesa",
+    emoji:"🩵",
+    color:"#45d7d0",
+    shell:"#158c8a",
+    rarity:2,
+    favorite:"pepino"
+},
+
+{
+    id:"dorado",
+    name:"Dorado",
+    emoji:"💛",
+    color:"#f4c542",
+    shell:"#a87809",
+    rarity:2,
+    favorite:"manzana"
+},
+
+{
+    id:"negro",
+    name:"Negro",
+    emoji:"⚫",
+    color:"#242424",
+    shell:"#090909",
+    rarity:2,
+    favorite:"zanahoria"
+},
+
+{
+    id:"esmeralda",
+    name:"Esmeralda",
+    emoji:"💚",
+    color:"#28b86c",
+    shell:"#087237",
+    rarity:3,
+    favorite:"lechuga"
+},
+
+{
+    id:"sombra",
+    name:"Sombra",
+    emoji:"🌑",
+    color:"#34344b",
+    shell:"#11111d",
+    rarity:3,
+    favorite:"manzana"
+},
+
+{
+    id:"oceanico",
+    name:"Oceánico",
+    emoji:"🌊",
+    color:"#1684bc",
+    shell:"#075276",
+    rarity:3,
+    favorite:"pepino"
+},
+
+{
+    id:"cristal",
+    name:"Cristal",
+    emoji:"🔷",
+    color:"#9eefff",
+    shell:"#54b9d1",
+    rarity:3,
+    favorite:"fresa"
+},
+
+{
+    id:"cosmico",
+    name:"Cósmico",
+    emoji:"🌌",
+    color:"#161332",
+    shell:"#6749bd",
+    rarity:5,
+    favorite:"manzana"
+},
+
+{
+    id:"fantasma",
+    name:"Fantasma",
+    emoji:"👻",
+    color:"#dce7ff",
+    shell:"#a4b6df",
+    rarity:5,
+    favorite:"fresa"
+},
+
+{
+    id:"arcoiris",
+    name:"Arcoíris",
+    emoji:"🌈",
+    color:"#ff8fc5",
+    shell:"#875de0",
+    rarity:5,
+    favorite:"fresa"
+},
+
+{
+    id:"volcanico",
+    name:"Volcánico",
+    emoji:"🔥",
+    color:"#511717",
+    shell:"#d6421d",
+    rarity:5,
+    favorite:"zanahoria"
+},
+
+{
+    id:"glacial",
+    name:"Glacial",
+    emoji:"❄️",
+    color:"#c9f7ff",
+    shell:"#48b6d8",
+    rarity:5,
+    favorite:"pepino"
+},
+
+{
+    id:"electrico",
+    name:"Eléctrico",
+    emoji:"⚡",
+    color:"#f3df28",
+    shell:"#9c8200",
+    rarity:5,
+    favorite:"manzana"
+},
+
+{
+    id:"solar",
+    name:"Solar",
+    emoji:"☀️",
+    color:"#ff9d17",
+    shell:"#df4e13",
+    rarity:5,
+    favorite:"manzana"
+},
+
+{
+    id:"diamante",
+    name:"Diamante",
+    emoji:"💎",
+    color:"#9ef4ff",
+    shell:"#53bdcf",
+    rarity:5,
+    favorite:"fresa"
+},
+
+{
+    id:"aurora",
+    name:"Aurora",
+    emoji:"🌈",
+    color:"#63e6c5",
+    shell:"#286da3",
+    rarity:5,
+    favorite:"lechuga"
+}
+
+];
+
+
+/* =========================================================
+   TIPOS DE SOBRE
+========================================================= */
+
+const ENVELOPE_TYPES = [
+
+{
+    id:"normal",
+
+    name:"Sobre de Jardín",
+
+    color:"#8acb65",
+
+    dark:"#3d8b35",
+
+    rarity:1,
+
+    species:
+        SPECIES
+        .filter(s => s.rarity === 1)
+        .map(s => s.id),
+
+    draw:"garden"
+},
+
+{
+    id:"raro",
+
+    name:"Sobre Especial",
+
+    color:"#5bbbd3",
+
+    dark:"#24728c",
+
+    rarity:2,
+
+    species:
+        SPECIES
+        .filter(s => s.rarity === 2)
+        .map(s => s.id),
+
+    draw:"special"
+},
+
+{
+    id:"epico",
+
+    name:"Sobre Épico",
+
+    color:"#a765d8",
+
+    dark:"#572681",
+
+    rarity:3,
+
+    species:
+        SPECIES
+        .filter(s => s.rarity === 3)
+        .map(s => s.id),
+
+    draw:"epic"
+},
+
+{
+    id:"legendario",
+
+    name:"Sobre Legendario",
+
+    color:"#e5b943",
+
+    dark:"#8b6411",
+
+    rarity:5,
+
+    species:
+        SPECIES
+        .filter(s => s.rarity === 5)
+        .map(s => s.id),
+
+    draw:"legend"
+}
+
+];
+
+
+/* =========================================================
+   ESTADO INICIAL
+========================================================= */
+
+let game = {
+
+    coins:300,
+
+    snails:[],
+
+    eggs:[],
+
+    envelopes:[],
+
+    nursery:[],
+
+    discovered:[],
+
+    foods:[],
+
+    night:false,
+
+    seconds:0,
+
+    feed:0,
+
+    pet:0,
+
+    daily:false,
+
+    highScores:{
+        food:0,
+        star:0,
+        snake:0
+    }
+
+};
+
+
+/* =========================================================
+   UTILIDADES
+========================================================= */
+
+function random(array){
+
+    if(!array || !array.length){
+        return null;
+    }
+
+    return array[
+        Math.floor(
+            Math.random() * array.length
+        )
+    ];
+
+}
+
+
+function species(id){
+
+    return SPECIES.find(
+        s => s.id === id
+    );
+
+}
+
+
+function envelopeType(id){
+
+    return ENVELOPE_TYPES.find(
+        e => e.id === id
+    );
+
+}
+
+
+function message(text){
+
+    const element =
+        document.getElementById("message");
+
+    if(element){
+        element.textContent = text;
+    }
+
+
+    /*
+       Aviso global: un toast fijo en pantalla, visible sin
+       importar el panel activo ni la posición del scroll.
+       El usuario puede cerrarlo a mano o se oculta solo.
+    */
+
+    const globalElement =
+        document.getElementById("globalMessage");
+
+    const globalText =
+        document.getElementById("globalMessageText");
+
+    if(globalElement && globalText){
+
+        globalText.textContent = text;
+
+        globalElement.classList.remove("hidden");
+
+        globalElement.style.animation = "none";
+        void globalElement.offsetWidth;
+        globalElement.style.animation = "";
+
+        clearTimeout(globalElement._hideTimer);
+
+        globalElement._hideTimer = setTimeout(() => {
+
+            hideGlobalMessage();
+
+        },4000);
+
+    }
+
+}
+
+
+function hideGlobalMessage(){
+
+    const globalElement =
+        document.getElementById("globalMessage");
+
+    if(!globalElement){
+        return;
+    }
+
+    clearTimeout(globalElement._hideTimer);
+
+    globalElement.classList.add("hidden");
+
+}
+
+
+function clamp(value,min,max){
+
+    return Math.max(
+        min,
+        Math.min(max,value)
+    );
+
+}
+
+
+/* =========================================================
+   CAMBIO DE PANEL
+========================================================= */
+
+function showPanel(id){
+
+    document
+        .querySelectorAll(".panel")
+        .forEach(panel => {
+
+            panel.classList.remove("active");
+
+        });
+
+
+    const panel =
+        document.getElementById(id);
+
+
+    if(!panel){
+        return;
+    }
+
+
+    panel.classList.add("active");
+
+
+    render();
+
+}
+
+
+/* =========================================================
+   CREAR ID ÚNICO
+========================================================= */
+
+function uniqueId(prefix){
+
+    return (
+
+        prefix +
+
+        "_" +
+
+        Date.now() +
+
+        "_" +
+
+        Math.random()
+            .toString(36)
+            .slice(2)
+
+    );
+
+}
+
+
+/* =========================================================
+   MODELO DE CARACOL ADULTO
+========================================================= */
+
+function normalModel(s){
+
+    return `
+
+    <svg
+        viewBox="0 0 110 90"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <ellipse
+            cx="45"
+            cy="70"
+            rx="43"
+            ry="12"
+            fill="${s.color}"
+            stroke="#333"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="54"
+            cy="40"
+            r="29"
+            fill="${s.shell}"
+            stroke="#333"
+            stroke-width="3"
+        />
+
+        <path
+            d="
+                M54 19
+                C30 22 29 54 53 57
+                C73 59 80 38 64 30
+                C52 24 42 36 49 44
+            "
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="6"
+        />
+
+        <circle
+            cx="88"
+            cy="61"
+            r="11"
+            fill="${s.color}"
+            stroke="#333"
+            stroke-width="2"
+        />
+
+        <path
+            d="
+                M84 52
+                Q87 36 85 25
+                M91 52
+                Q98 38 99 28
+            "
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="85"
+            cy="24"
+            r="3"
+            fill="#222"
+        />
+
+        <circle
+            cx="99"
+            cy="27"
+            r="3"
+            fill="#222"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
+/* =========================================================
+   MODELO DE BEBÉ
+========================================================= */
+
+function babyModel(s){
+
+    return `
+
+    <svg
+        viewBox="0 0 100 80"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <ellipse
+            cx="42"
+            cy="62"
+            rx="30"
+            ry="9"
+            fill="${s.color}"
+            stroke="#333"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="48"
+            cy="43"
+            r="22"
+            fill="${s.shell}"
+            stroke="#333"
+            stroke-width="3"
+        />
+
+        <path
+            d="
+                M48 28
+                C34 31 33 51 47 53
+                C60 54 66 43 58 37
+                C51 33 44 39 47 44
+            "
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="5"
+        />
+
+        <circle
+            cx="72"
+            cy="53"
+            r="9"
+            fill="${s.color}"
+            stroke="#333"
+            stroke-width="2"
+        />
+
+        <path
+            d="
+                M69 45
+                Q70 34 69 27
+
+                M75 45
+                Q81 35 81 29
+            "
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="69"
+            cy="27"
+            r="2.5"
+            fill="#222"
+        />
+
+        <circle
+            cx="81"
+            cy="29"
+            r="2.5"
+            fill="#222"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
+/* =========================================================
+   MODELOS ESPECIALES
+========================================================= */
+
+function cosmicModel(){
+
+    return `
+
+    <svg
+        viewBox="0 0 110 90"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <ellipse
+            cx="45"
+            cy="70"
+            rx="43"
+            ry="12"
+            fill="#11102e"
+            stroke="#17132f"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="54"
+            cy="40"
+            r="29"
+            fill="#11102e"
+            stroke="#17132f"
+            stroke-width="3"
+        />
+
+        <text
+            x="35"
+            y="48"
+            font-size="20"
+        >🌌</text>
+
+        <text
+            x="55"
+            y="29"
+            font-size="15"
+        >✦</text>
+
+        <text
+            x="64"
+            y="54"
+            font-size="13"
+        >★</text>
+
+        <circle
+            cx="88"
+            cy="61"
+            r="11"
+            fill="#11102e"
+            stroke="#17132f"
+            stroke-width="2"
+        />
+
+        <path
+            d="
+                M84 52
+                Q87 36 85 25
+
+                M91 52
+                Q98 38 99 28
+            "
+            fill="#17132f"
+            stroke="#17132f"
+            stroke-width="3"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
+function ghostModel(){
+
+    return `
+
+    <svg
+        viewBox="0 0 110 100"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <path
+            d="
+                M18 76
+                Q12 55 18 34
+                Q25 10 55 10
+                Q85 10 92 34
+                Q98 55 92 76
+                L80 66
+                L68 78
+                L55 66
+                L42 78
+                L30 66
+                Z
+            "
+            fill="#dce7ff"
+            fill-opacity=".9"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="42"
+            cy="39"
+            r="5"
+            fill="#4d5c82"
+        />
+
+        <circle
+            cx="68"
+            cy="39"
+            r="5"
+            fill="#4d5c82"
+        />
+
+        <path
+            d="M45 51Q55 57 65 51"
+            fill="none"
+            stroke="#4d5c82"
+            stroke-width="3"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
+function model(s){
+
+    if(!s){
+        return "";
+    }
+
+    if(s.id === "cosmico"){
+        return cosmicModel();
+    }
+
+    if(s.id === "fantasma"){
+        return ghostModel();
+    }
+
+    return normalModel(s);
+
+}
+
+/* =========================================================
+   CREAR CARACOL
+========================================================= */
+
+function createSnail(type){
+
+    return {
+
+        id:uniqueId("snail"),
+
+        type:type,
+
+        x:8 + Math.random() * 72,
+
+        y:15 + Math.random() * 42,
+
+        vx:
+            (Math.random() < .5 ? -1 : 1)
+            * .025,
+
+        vy:
+            (Math.random() - .5)
+            * .02,
+
+        target:null,
+
+        hunger:75,
+
+        energy:90,
+
+        happy:80,
+
+        trust:10,
+
+        bubble:"",
+
+        bubbleTime:0,
+
+        pause:0
+
+    };
+
+}
+
+
+/* =========================================================
+   DEJAR COMIDA
+========================================================= */
+
+function dropFood(type){
+
+    if(!FOOD[type]){
+        return;
+    }
+
+    game.foods.push({
+
+        id:uniqueId("food"),
+
+        type:type,
+
+        x:10 + Math.random() * 72,
+
+        y:12 + Math.random() * 50,
+
+        createdAt:Date.now()
+
+    });
+
+    message(
+        FOOD[type] +
+        " ¡Comida colocada!"
+    );
+
+    renderTerrarium();
+
+}
+
+
+/* =========================================================
+   BUSCAR COMIDA
+========================================================= */
+
+function findFoodForSnail(snail){
+
+    let best = null;
+
+    let distance = Infinity;
+
+    const snailSpecies =
+        species(snail.type);
+
+    if(!snailSpecies){
+        return null;
+    }
+
+
+    game.foods.forEach(food => {
+
+        let dx =
+            food.x - snail.x;
+
+        let dy =
+            food.y - snail.y;
+
+        let d =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        /* La comida favorita tiene
+           prioridad */
+
+        if(
+            food.type ===
+            snailSpecies.favorite
+        ){
+
+            d -= 15;
+
+        }
+
+
+        if(d < distance){
+
+            distance = d;
+
+            best = food;
+
+        }
+
+    });
+
+
+    return best;
+
+}
+
+
+/* =========================================================
+   MOVIMIENTO DE LOS CARACOLES
+========================================================= */
+
+function moveSnails(){
+
+    game.snails.forEach(snail => {
+
+        /* Pausa después de comer */
+
+        if(snail.pause > 0){
+
+            snail.pause--;
+
+            return;
+
+        }
+
+
+        /* Buscar comida cuando hay hambre */
+
+        if(
+            !snail.target &&
+            snail.hunger < 65 &&
+            game.foods.length > 0
+        ){
+
+            snail.target =
+                findFoodForSnail(snail);
+
+        }
+
+
+        /* Ir hacia la comida */
+
+        if(snail.target){
+
+            const dx =
+                snail.target.x -
+                snail.x;
+
+            const dy =
+                snail.target.y -
+                snail.y;
+
+            const distance =
+                Math.sqrt(
+                    dx * dx +
+                    dy * dy
+                );
+
+
+            /* Llegó a la comida */
+
+            if(distance < 2.3){
+
+                eatFood(
+                    snail,
+                    snail.target
+                );
+
+                return;
+
+            }
+
+
+            /* Avanzar */
+
+            if(distance > 0){
+
+                snail.x +=
+                    (dx / distance)
+                    * .045;
+
+                snail.y +=
+                    (dy / distance)
+                    * .045;
+
+            }
+
+        }
+
+        else{
+
+            /* Movimiento libre */
+
+            snail.x += snail.vx;
+
+            snail.y += snail.vy;
+
+
+            /* Cambiar dirección ocasionalmente */
+
+            if(Math.random() < .01){
+
+                snail.vx =
+                    (Math.random() - .5)
+                    * .045;
+
+                snail.vy =
+                    (Math.random() - .5)
+                    * .025;
+
+            }
+
+        }
+
+
+        /* Limitar al terrario */
+
+        snail.x =
+            clamp(
+                snail.x,
+                3,
+                84
+            );
+
+        snail.y =
+            clamp(
+                snail.y,
+                5,
+                61
+            );
+
+
+        /* Estadísticas */
+
+        snail.hunger =
+            clamp(
+                snail.hunger - .003,
+                0,
+                100
+            );
+
+        snail.energy =
+            clamp(
+                snail.energy - .001,
+                0,
+                100
+            );
+
+
+        if(
+            snail.hunger > 70 &&
+            snail.energy > 50
+        ){
+
+            snail.happy =
+                clamp(
+                    snail.happy + .001,
+                    0,
+                    100
+                );
+
+        }
+
+    });
+
+
+    updatePositions();
+
+}
+
+
+/* =========================================================
+   COMER
+========================================================= */
+
+function eatFood(snail,food){
+
+    if(!snail || !food){
+        return;
+    }
+
+
+    const snailSpecies =
+        species(snail.type);
+
+
+    const favorite =
+        snailSpecies &&
+        snailSpecies.favorite ===
+        food.type;
+
+
+    /* Hambre */
+
+    snail.hunger =
+        clamp(
+            snail.hunger +
+            (favorite ? 35 : 18),
+            0,
+            100
+        );
+
+
+    /* Energía */
+
+    snail.energy =
+        clamp(
+            snail.energy + 4,
+            0,
+            100
+        );
+
+
+    /* Felicidad */
+
+    snail.happy =
+        clamp(
+            snail.happy +
+            (favorite ? 12 : 5),
+            0,
+            100
+        );
+
+
+    /* Confianza */
+
+    snail.trust =
+        clamp(
+            snail.trust + 2,
+            0,
+            100
+        );
+
+
+    /* Quitar comida */
+
+    game.foods =
+        game.foods.filter(
+            f => f.id !== food.id
+        );
+
+
+    snail.target = null;
+
+    snail.pause = 45;
+
+
+    /* Recompensa */
+
+    game.feed++;
+
+    game.coins += 2;
+
+
+    message(
+
+        favorite
+
+        ? "💚 Comida favorita. +2 monedas"
+
+        : "🍽️ Está comiendo. +2 monedas"
+
+    );
+
+
+    render();
+
+}
+
+
+/* =========================================================
+   ACARICIAR
+========================================================= */
+
+function petSnail(id){
+
+    const snail =
+        game.snails.find(
+            s => s.id === id
+        );
+
+
+    if(!snail){
+        return;
+    }
+
+
+    snail.happy =
+        clamp(
+            snail.happy + 6,
+            0,
+            100
+        );
+
+
+    snail.trust =
+        clamp(
+            snail.trust + 4,
+            0,
+            100
+        );
+
+
+    game.pet++;
+
+    game.coins++;
+
+
+    snail.bubble = "♥";
+
+    snail.bubbleTime = 80;
+
+
+    message(
+        "❤️ Acariciaste a " +
+        (species(snail.type)?.name || "tu caracol") +
+        ". +1 moneda"
+    );
+
+
+    render();
+
+}
+
+
+/* =========================================================
+   HABLAR CON EL CARACOL
+========================================================= */
+
+function talkSnail(id){
+
+    const snail =
+        game.snails.find(
+            s => s.id === id
+        );
+
+
+    if(!snail){
+        return;
+    }
+
+
+    snail.happy =
+        clamp(
+            snail.happy + 2,
+            0,
+            100
+        );
+
+
+    snail.trust =
+        clamp(
+            snail.trust + 2,
+            0,
+            100
+        );
+
+
+    snail.bubble =
+        random([
+
+            "Hola. 🐌",
+
+            "Tengo hambre.",
+
+            "Voy explorando...",
+
+            "Qué bonito está aquí.",
+
+            "Zzz...",
+
+            "Me gusta mi terrario.",
+
+            "¿Hay comida?",
+
+            "Estoy feliz. ❤️",
+
+            "Mira cómo avanzo.",
+
+            "Este es mi hogar."
+
+        ]);
+
+
+    snail.bubbleTime = 150;
+
+
+    render();
+
+}
+
+
+/* =========================================================
+   ACTUALIZAR BURBUJAS
+========================================================= */
+
+function updateBubbles(){
+
+    game.snails.forEach(snail => {
+
+        if(snail.bubbleTime > 0){
+
+            snail.bubbleTime--;
+
+        }
+
+        else{
+
+            snail.bubble = "";
+
+        }
+
+    });
+
+}
+
+
+/* =========================================================
+   ACTUALIZAR POSICIONES SIN CREAR HTML
+========================================================= */
+
+function updatePositions(){
+
+    game.snails.forEach(
+        snail => {
+
+            const element =
+                document.querySelector(
+                    `[data-snail-id="${snail.id}"]`
+                );
+
+
+            if(!element){
+                return;
+            }
+
+
+            element.style.left =
+                snail.x + "%";
+
+
+            element.style.top =
+                snail.y + "%";
+
+
+            /*
+               El espejo de dirección se aplica solo al
+               dibujo del caracol (el <svg>), no al div
+               contenedor: si se aplicara al contenedor
+               también se invertiría el texto del nombre.
+            */
+
+            const snailSvg =
+                element.querySelector("svg");
+
+            if(snailSvg){
+
+                snailSvg.style.transform =
+                    snail.vx < 0
+                    ? "scaleX(-1)"
+                    : "scaleX(1)";
+
+            }
+
+
+            const bubble =
+                element.querySelector(
+                    ".bubble"
+                );
+
+
+            if(
+                bubble &&
+                snail.bubble
+            ){
+
+                bubble.textContent =
+                    snail.bubble;
+
+            }
+
+        }
+    );
+
+
+    game.foods.forEach(
+        food => {
+
+            const element =
+                document.querySelector(
+                    `.food[onclick="collectFood('${food.id}')"]`
+                );
+
+
+            if(element){
+
+                element.style.left =
+                    food.x + "%";
+
+                element.style.top =
+                    food.y + "%";
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ACTUALIZAR NECESIDADES
+========================================================= */
+
+function updateNeeds(){
+
+    game.snails.forEach(snail => {
+
+        snail.hunger =
+            clamp(
+                snail.hunger - .004,
+                0,
+                100
+            );
+
+
+        snail.energy =
+            clamp(
+                snail.energy - .002,
+                0,
+                100
+            );
+
+
+        if(snail.hunger < 25){
+
+            snail.happy =
+                clamp(
+                    snail.happy - .01,
+                    0,
+                    100
+                );
+
+        }
+
+
+        if(snail.energy < 20){
+
+            snail.happy =
+                clamp(
+                    snail.happy - .005,
+                    0,
+                    100
+                );
+
+        }
+
+    });
+
+}
+
+
+/* =========================================================
+   BUCLE DE VIDA
+========================================================= */
+
+setInterval(() => {
+
+    moveSnails();
+
+    updateNeeds();
+
+    updateBubbles();
+
+}, 100);
+
+</script>
+<script>
+
+/* =========================================================
+   SVG DE SOBRES
+========================================================= */
+
+function envelopeSVG(type){
+
+    const e = envelopeType(type);
+
+    if(!e){
+        return "";
+    }
+
+    let center = "";
+
+
+    /* SOBRE DE JARDÍN */
+
+    if(type === "normal"){
+
+        center = `
+
+        <g transform="translate(48 55) scale(.55)">
+
+            <ellipse
+                cx="0"
+                cy="14"
+                rx="25"
+                ry="8"
+                fill="#43a84a"
+            />
+
+            <circle
+                cx="0"
+                cy="0"
+                r="17"
+                fill="#e53935"
+                stroke="#333"
+                stroke-width="3"
+            />
+
+            <circle
+                cx="15"
+                cy="6"
+                r="8"
+                fill="#e53935"
+            />
+
+            <path
+                d="M0 -8Q-12 0 0 10Q12 8 8 -2Q2 -7 -3 0"
+                fill="none"
+                stroke="#a51212"
+                stroke-width="4"
+            />
+
+        </g>
+
+
+        <g transform="translate(95 55) scale(.55)">
+
+            <ellipse
+                cx="0"
+                cy="14"
+                rx="25"
+                ry="8"
+                fill="#43a84a"
+            />
+
+            <circle
+                cx="0"
+                cy="0"
+                r="17"
+                fill="#43a84a"
+                stroke="#333"
+                stroke-width="3"
+            />
+
+            <circle
+                cx="15"
+                cy="6"
+                r="8"
+                fill="#43a84a"
+            />
+
+            <path
+                d="M0 -8Q-12 0 0 10Q12 8 8 -2Q2 -7 -3 0"
+                fill="none"
+                stroke="#176622"
+                stroke-width="4"
+            />
+
+        </g>
+
+        `;
+
+    }
+
+
+    /* SOBRE RARO */
+
+    if(type === "raro"){
+
+        center = `
+
+        <circle
+            cx="72"
+            cy="57"
+            r="27"
+            fill="#45d7d0"
+            stroke="#145d65"
+            stroke-width="3"
+        />
+
+        <path
+            d="
+                M72 38
+                Q52 48 70 70
+                Q89 71 92 55
+                Q88 42 76 49
+            "
+            fill="none"
+            stroke="#b8ffff"
+            stroke-width="5"
+        />
+
+        <circle
+            cx="90"
+            cy="65"
+            r="7"
+            fill="#45d7d0"
+        />
+
+        `;
+
+    }
+
+
+    /* SOBRE ÉPICO */
+
+    if(type === "epico"){
+
+        center = `
+
+        <circle
+            cx="72"
+            cy="57"
+            r="27"
+            fill="#34344b"
+            stroke="#21112d"
+            stroke-width="3"
+        />
+
+        <path
+            d="
+                M72 36
+                C54 40 52 65 70 69
+                C88 71 94 52 81 45
+                C70 39 63 49 68 57
+            "
+            fill="none"
+            stroke="#28b86c"
+            stroke-width="5"
+        />
+
+        <text
+            x="60"
+            y="27"
+            font-size="18"
+        >✦</text>
+
+        `;
+
+    }
+
+
+    /* SOBRE LEGENDARIO */
+
+    if(type === "legendario"){
+
+        center = `
+
+        <circle
+            cx="72"
+            cy="57"
+            r="28"
+            fill="#161332"
+            stroke="#8b6411"
+            stroke-width="4"
+        />
+
+        <text
+            x="55"
+            y="65"
+            font-size="30"
+        >🌌</text>
+
+        <text
+            x="42"
+            y="35"
+            font-size="15"
+        >✦</text>
+
+        <text
+            x="91"
+            y="40"
+            font-size="13"
+        >★</text>
+
+        `;
+
+    }
+
+
+    return `
+
+    <svg
+        viewBox="0 0 145 130"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <!-- Fondo del sobre -->
+
+        <rect
+            x="8"
+            y="10"
+            width="129"
+            height="105"
+            rx="16"
+            fill="${e.color}"
+            stroke="${e.dark}"
+            stroke-width="5"
+        />
+
+
+        <!-- Solapa -->
+
+        <path
+            d="
+                M10 17
+                L72.5 67
+                L135 17
+            "
+            fill="${e.dark}"
+            opacity=".65"
+        />
+
+
+        <!-- Parte central -->
+
+        ${center}
+
+
+        <!-- Estrellas decorativas -->
+
+        <text
+            x="20"
+            y="95"
+            font-size="15"
+        >✦</text>
+
+        <text
+            x="118"
+            y="94"
+            font-size="15"
+        >✦</text>
+
+
+        <!-- Nombre -->
+
+        <text
+            x="72"
+            y="126"
+            text-anchor="middle"
+            font-size="10"
+            font-weight="bold"
+            fill="#23452a"
+        >
+            ${e.name}
+        </text>
+
+    </svg>
+
+    `;
+
+}
+
+
+/* =========================================================
+   PROBABILIDADES
+========================================================= */
+
+function getSpeciesForEnvelope(type){
+
+    const e =
+        envelopeType(type);
+
+    if(!e || !e.species.length){
+        return null;
+    }
+
+    return random(e.species);
+
+}
+
+
+/* =========================================================
+   CREAR HUEVO
+========================================================= */
+
+function createEgg(type){
+
+    const speciesId =
+        getSpeciesForEnvelope(type);
+
+    if(!speciesId){
+        return null;
+    }
+
+    return {
+
+        id:uniqueId("egg"),
+
+        species:speciesId,
+
+        source:type,
+
+        createdAt:Date.now(),
+
+        placed:false,
+
+        incubationStart:null,
+
+        hatchTime:null,
+
+        status:"inventory"
+
+    };
+
+}
+
+
+/* =========================================================
+   ABRIR SOBRE
+========================================================= */
+
+function openEnvelope(type){
+
+    const e =
+        envelopeType(type);
+
+    if(!e){
+        return;
+    }
+
+
+    /* Cada sobre cuesta monedas */
+
+    const prices = {
+
+        normal:50,
+
+        raro:100,
+
+        epico:200,
+
+        legendario:400
+
+    };
+
+
+    const price =
+        prices[type] || 50;
+
+
+    if(game.coins < price){
+
+        message(
+            "🪙 No tienes suficientes monedas."
+        );
+
+        return;
+
+    }
+
+
+    game.coins -= price;
+
+
+    /* EXACTAMENTE 2 HUEVOS */
+
+    const egg1 =
+        createEgg(type);
+
+    const egg2 =
+        createEgg(type);
+
+
+    if(egg1){
+        game.eggs.push(egg1);
+    }
+
+    if(egg2){
+        game.eggs.push(egg2);
+    }
+
+
+    /* Registrar sobre */
+
+    game.envelopes.push({
+
+        id:uniqueId("envelope"),
+
+        type:type,
+
+        openedAt:Date.now()
+
+    });
+
+
+    /* Descubrimientos */
+
+    if(egg1){
+        discoverSpecies(
+            egg1.species
+        );
+    }
+
+    if(egg2){
+        discoverSpecies(
+            egg2.species
+        );
+    }
+
+
+    message(
+        "✉️ ¡Sobre abierto! " +
+        "🥚🥚 Has conseguido 2 huevos."
+    );
+
+
+    render();
+
+}
+
+
+/* =========================================================
+   DESCUBRIR ESPECIE
+========================================================= */
+
+function discoverSpecies(id){
+
+    if(!id){
+        return;
+    }
+
+
+    if(
+        !game.discovered.includes(id)
+    ){
+
+        game.discovered.push(id);
+
+        const s =
+            species(id);
+
+        if(s){
+
+            message(
+                "📖 ¡Nueva especie descubierta: " +
+                s.name +
+                "!"
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   SVG DEL HUEVO
+========================================================= */
+
+function eggSVG(egg){
+
+    if(!egg){
+        return "";
+    }
+
+
+    const s =
+        species(egg.species);
+
+
+    if(!s){
+        return "";
+    }
+
+
+    return `
+
+    <svg
+        class="eggSvg"
+        viewBox="0 0 100 120"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <defs>
+
+            <radialGradient
+                id="eggGradient_${egg.id}"
+                cx="35%"
+                cy="25%"
+            >
+
+                <stop
+                    offset="0%"
+                    stop-color="#ffffff"
+                />
+
+                <stop
+                    offset="35%"
+                    stop-color="${s.color}"
+                />
+
+                <stop
+                    offset="100%"
+                    stop-color="${s.shell}"
+                />
+
+            </radialGradient>
+
+        </defs>
+
+
+        <ellipse
+            cx="50"
+            cy="108"
+            rx="28"
+            ry="7"
+            fill="#0002"
+        />
+
+
+        <path
+            d="
+                M50 8
+                C27 8 14 36 16 65
+                C18 94 31 108 50 108
+                C69 108 82 94 84 65
+                C86 36 73 8 50 8
+                Z
+            "
+            fill="url(#eggGradient_${egg.id})"
+            stroke="#555"
+            stroke-width="3"
+        />
+
+
+        <path
+            d="
+                M28 48
+                Q50 30 72 48
+            "
+            fill="none"
+            stroke="#ffffff"
+            stroke-opacity=".6"
+            stroke-width="4"
+        />
+
+
+        <circle
+            cx="35"
+            cy="30"
+            r="6"
+            fill="#ffffff"
+            opacity=".7"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
+/* =========================================================
+   MOSTRAR HUEVO
+========================================================= */
+
+function eggCard(egg){
+
+    const s =
+        species(egg.species);
+
+    if(!s){
+        return "";
+    }
+
+
+    let status =
+        "🥚 En inventario";
+
+
+    if(egg.status === "incubating"){
+
+        status =
+            "🔥 Incubando";
+
+    }
+
+
+    if(egg.status === "hatched"){
+
+        status =
+            "🐌 Eclosionado";
+
+    }
+
+
+    return `
+
+    <div
+        class="card eggCard"
+        data-egg-id="${egg.id}"
+    >
+
+        ${eggSVG(egg)}
+
+
+        <h3>
+            🥚 Huevo ${s.name}
+        </h3>
+
+
+        <p>
+            Rareza:
+            ⭐ ${s.rarity}
+        </p>
+
+
+        <p>
+            ${status}
+        </p>
+
+
+        ${
+            egg.status === "inventory"
+
+            ? `
+
+            <button
+                onclick="placeEggInNursery('${egg.id}')"
+            >
+                🌱 Incubar
+            </button>
+
+            `
+
+            : ""
+
+        }
+
+    </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   PONER HUEVO EN CRIADERO
+========================================================= */
+
+function placeEggInNursery(id){
+
+    const egg =
+        game.eggs.find(
+            e => e.id === id
+        );
+
+
+    if(!egg){
+        return;
+    }
+
+
+    if(egg.status !== "inventory"){
+
+        message(
+            "🥚 Ese huevo ya está en proceso."
+        );
+
+        return;
+
+    }
+
+
+    egg.status =
+        "incubating";
+
+
+    egg.placed = true;
+
+    egg.incubationStart =
+        Date.now();
+
+    egg.hatchTime =
+        Date.now() +
+        INCUBATION_TIME;
+
+
+    game.nursery.push({
+
+        id:uniqueId("incubation"),
+
+        eggId:egg.id,
+
+        startedAt:
+            egg.incubationStart,
+
+        hatchTime:
+            egg.hatchTime
+
+    });
+
+
+    message(
+        "🌱 ¡Huevo colocado en el criadero!"
+    );
+
+
+    render();
+
+}
+
+
+/* =========================================================
+   ELIMINAR HUEVO DEL CRIADERO
+========================================================= */
+
+function removeEggFromNursery(id){
+
+    const egg =
+        game.eggs.find(
+            e => e.id === id
+        );
+
+
+    if(!egg){
+        return;
+    }
+
+
+    if(egg.status !== "incubating"){
+        return;
+    }
+
+
+    egg.status =
+        "inventory";
+
+    egg.placed = false;
+
+    egg.incubationStart = null;
+
+    egg.hatchTime = null;
+
+
+    game.nursery =
+        game.nursery.filter(
+            n => n.eggId !== id
+        );
+
+
+    message(
+        "🥚 Huevo devuelto al inventario."
+    );
+
+
+    render();
+
+}
+
+
+/* =========================================================
+   COMPROBAR INCUBACIONES
+========================================================= */
+
+function updateIncubation(){
+
+    const now =
+        Date.now();
+
+
+    game.eggs.forEach(egg => {
+
+        if(
+            egg.status === "incubating" &&
+            egg.hatchTime &&
+            now >= egg.hatchTime
+        ){
+
+            hatchEgg(egg);
+
+        }
+
+    });
+
+}
+
+
+/* =========================================================
+   ECLOSIONAR HUEVO
+========================================================= */
+
+function hatchEgg(egg){
+
+    if(
+        !egg ||
+        egg.status !== "incubating"
+    ){
+        return;
+    }
+
+
+    const s =
+        species(egg.species);
+
+
+    if(!s){
+        return;
+    }
+
+
+    egg.status =
+        "hatched";
+
+
+    egg.placed = false;
+
+
+    game.nursery =
+        game.nursery.filter(
+            n => n.eggId !== egg.id
+        );
+
+
+    /* Crear bebé */
+
+    const baby = {
+
+        id:uniqueId("baby"),
+
+        type:s.id,
+
+        bornAt:Date.now(),
+
+        growTime:
+            Date.now() +
+            BABY_GROW_TIME,
+
+        x:15 + Math.random() * 65,
+
+        y:20 + Math.random() * 45,
+
+        status:"baby"
+
+    };
+
+
+    game.nursery.push(baby);
+
+
+    message(
+        "🐣 ¡El huevo de " +
+        s.name +
+        " ha eclosionado!"
+    );
+
+
+    render();
+
+}
+
+
+/* =========================================================
+   COMPROBAR CRECIMIENTO
+========================================================= */
+
+function updateBabies(){
+
+    const now =
+        Date.now();
+
+
+    game.nursery.forEach(item => {
+
+        if(
+            item.status === "baby" &&
+            item.growTime &&
+            now >= item.growTime
+        ){
+
+            growBaby(item);
+
+        }
+
+    });
+
+}
+
+
+/* =========================================================
+   BEBÉ → ADULTO
+========================================================= */
+
+function growBaby(baby){
+
+    if(
+        !baby ||
+        baby.status !== "baby"
+    ){
+        return;
+    }
+
+
+    if(
+        game.snails.length >=
+        MAX_SNAILS
+    ){
+
+        message(
+            "🐌 El refugio está lleno. " +
+            "El bebé esperará."
+        );
+
+        return;
+
+    }
+
+
+    const snail =
+        createSnail(
+            baby.type
+        );
+
+
+    snail.hunger = 80;
+
+    snail.energy = 100;
+
+    snail.happy = 90;
+
+    snail.trust = 20;
+
+
+    game.snails.push(snail);
+
+
+    discoverSpecies(
+        baby.type
+    );
+
+
+    game.nursery =
+        game.nursery.filter(
+            n => n.id !== baby.id
+        );
+
+
+    message(
+        "🐌 ¡Un caracol bebé se convirtió en adulto!"
+    );
+
+
+    render();
+
+}
+
+
+/* =========================================================
+   ACTUALIZAR INCUBACIÓN Y CRECIMIENTO
+========================================================= */
+
+setInterval(() => {
+
+    updateIncubation();
+
+    updateBabies();
+
+}, 1000);
+
+</script>
+<script>
+
+/* =========================================================
+   RENDERIZAR TERRARIO
+========================================================= */
+
+function renderTerrarium(){
+
+    const layer =
+        document.getElementById("snailLayer");
+
+    const foodLayer =
+        document.getElementById("foodLayer");
+
+
+    if(!layer || !foodLayer){
+        return;
+    }
+
+
+    /* -------------------------
+       CARACOLES
+    ------------------------- */
+
+    layer.innerHTML =
+        game.snails.map(snail => {
+
+            const s =
+                species(snail.type);
+
+            if(!s){
+                return "";
+            }
+
+
+            return `
+
+            <div
+                class="snail"
+                data-snail-id="${snail.id}"
+                style="
+                    left:${snail.x}%;
+                    top:${snail.y}%;
+                "
+                onclick="petSnail('${snail.id}')"
+                ondblclick="talkSnail('${snail.id}')"
+            >
+
+                ${
+                    snail.bubble
+                    ? `
+                    <div class="bubble">
+                        ${snail.bubble}
+                    </div>
+                    `
+                    : ""
+                }
+
+
+                ${model(s)}
+
+
+                <div class="snailName">
+                    ${s.emoji || "🐌"} ${s.name}
+                </div>
+
+            </div>
+
+            `;
+
+        }).join("");
+
+
+    /* -------------------------
+       COMIDA
+    ------------------------- */
+
+    foodLayer.innerHTML =
+        game.foods.map(food => {
+
+            return `
+
+            <div
+                class="food"
+                style="
+                    left:${food.x}%;
+                    top:${food.y}%;
+                "
+                onclick="collectFood('${food.id}')"
+            >
+                ${FOOD[food.type]}
+            </div>
+
+            `;
+
+        }).join("");
+
+
+    updatePositions();
+
+}
+
+
+/* =========================================================
+   RECOGER COMIDA
+========================================================= */
+
+function collectFood(id){
+
+    const food =
+        game.foods.find(
+            f => f.id === id
+        );
+
+
+    if(!food){
+        return;
+    }
+
+
+    game.foods =
+        game.foods.filter(
+            f => f.id !== id
+        );
+
+
+    game.coins++;
+
+
+    message(
+        "🍽️ Recogiste la comida. +1 moneda."
+    );
+
+
+    renderTerrarium();
+
+}
+
+
+/* =========================================================
+   TARJETAS DE CARACOLES
+========================================================= */
+
+function renderSnailCards(){
+
+    const container =
+        document.getElementById(
+            "snailCards"
+        );
+
+
+    if(!container){
+        return;
+    }
+
+
+    if(!game.snails.length){
+
+        container.innerHTML = `
+
+        <div class="card">
+
+            <div class="big">
+                🐌
+            </div>
+
+            <h3>
+                Todavía no tienes caracoles
+            </h3>
+
+            <p>
+                Abre sobres para conseguir huevos
+                y cría tus primeros caracoles.
+            </p>
+
+        </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        game.snails.map(snail => {
+
+            const s =
+                species(snail.type);
+
+            if(!s){
+                return "";
+            }
+
+
+            return `
+
+            <div class="card">
+
+                <div style="
+                    width:120px;
+                    margin:auto;
+                ">
+                    ${model(s)}
+                </div>
+
+
+                <h3>
+                    ${s.emoji || "🐌"}
+                    ${s.name}
+                </h3>
+
+
+                <p>
+                    Rareza:
+                    ⭐ ${s.rarity}
+                </p>
+
+
+                <p>
+                    🍽️ Hambre
+                </p>
+
+                <div class="bar">
+
+                    <div
+                        class="fill hunger"
+                        style="
+                            width:${snail.hunger}%;
+                        "
+                    ></div>
+
+                </div>
+
+
+                <p>
+                    ⚡ Energía
+                </p>
+
+                <div class="bar">
+
+                    <div
+                        class="fill energy"
+                        style="
+                            width:${snail.energy}%;
+                        "
+                    ></div>
+
+                </div>
+
+
+                <p>
+                    😊 Felicidad
+                </p>
+
+                <div class="bar">
+
+                    <div
+                        class="fill happy"
+                        style="
+                            width:${snail.happy}%;
+                        "
+                    ></div>
+
+                </div>
+
+
+                <p>
+                    💜 Confianza
+                </p>
+
+                <div class="bar">
+
+                    <div
+                        class="fill trust"
+                        style="
+                            width:${snail.trust}%;
+                        "
+                    ></div>
+
+                </div>
+
+
+                <button
+                    onclick="
+                        petSnail('${snail.id}')
+                    "
+                >
+                    ❤️ Acariciar
+                </button>
+
+
+                <button
+                    onclick="
+                        talkSnail('${snail.id}')
+                    "
+                >
+                    💬 Hablar
+                </button>
+
+            </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* =========================================================
+   LIBRO DE ESPECIES
+========================================================= */
+
+function renderBook(){
+
+    const container =
+        document.getElementById("book");
+
+
+    if(!container){
+        return;
+    }
+
+
+    container.innerHTML =
+        SPECIES.map(s => {
+
+            const discovered =
+                game.discovered
+                .includes(s.id);
+
+
+            if(!discovered){
+
+                return `
+
+                <div class="card">
+
+                    <div class="big">
+                        ❓
+                    </div>
+
+                    <h3>
+                        Especie desconocida
+                    </h3>
+
+                    <p>
+                        Abre sobres para
+                        descubrirla.
+                    </p>
+
+                </div>
+
+                `;
+
+            }
+
+
+            return `
+
+            <div class="card">
+
+                <div
+                    style="
+                        width:120px;
+                        margin:auto;
+                    "
+                >
+                    ${model(s)}
+                </div>
+
+
+                <h3>
+                    ${s.emoji || "🐌"}
+                    ${s.name}
+                </h3>
+
+
+                <p>
+                    Rareza:
+                    ⭐ ${s.rarity}
+                </p>
+
+
+                <p>
+                    Comida favorita:
+                    ${FOOD[s.favorite]}
+                </p>
+
+            </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* =========================================================
+   TIENDA DE SOBRES
+========================================================= */
+
+function renderEnvelopeShop(){
+
+    const container =
+        document.getElementById(
+            "envelopeShop"
+        );
+
+
+    if(!container){
+        return;
+    }
+
+
+    const prices = {
+
+        normal:50,
+
+        raro:100,
+
+        epico:200,
+
+        legendario:400
+
+    };
+
+
+    container.innerHTML =
+        ENVELOPE_TYPES.map(e => {
+
+            const price =
+                prices[e.id] || 50;
+
+
+            return `
+
+            <div class="card">
+
+                <div
+                    style="
+                        width:160px;
+                        margin:auto;
+                    "
+                >
+                    ${envelopeSVG(e.id)}
+                </div>
+
+
+                <h3>
+                    ${e.name}
+                </h3>
+
+
+                <p>
+                    🥚 Contiene exactamente
+                    <b>2 huevos</b>.
+                </p>
+
+
+                <p>
+                    ⭐ Rareza ${e.rarity}
+                </p>
+
+
+                <p>
+                    🪙 ${price} monedas
+                </p>
+
+
+                <button
+                    onclick="
+                        openEnvelope('${e.id}')
+                    "
+                >
+                    ✉️ Abrir sobre
+                </button>
+
+            </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* =========================================================
+   INVENTARIO DE HUEVOS
+========================================================= */
+
+function renderEggs(){
+
+    const container =
+        document.getElementById("eggs");
+
+
+    if(!container){
+        return;
+    }
+
+
+    if(!game.eggs.length){
+
+        container.innerHTML = `
+
+        <div class="card">
+
+            <div class="big">
+                🥚
+            </div>
+
+            <h3>
+                No tienes huevos
+            </h3>
+
+            <p>
+                Compra un sobre para
+                conseguir exactamente
+                dos huevos.
+            </p>
+
+        </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        game.eggs.map(
+            egg => eggCard(egg)
+        ).join("");
+
+}
+
+
+/* =========================================================
+   CRIADERO
+========================================================= */
+
+function renderNursery(){
+
+    const eggContainer =
+        document.getElementById(
+            "nurseryEggs"
+        );
+
+    const snailContainer =
+        document.getElementById(
+            "nurserySnails"
+        );
+
+    const info =
+        document.getElementById(
+            "nurseryInfo"
+        );
+
+
+    if(
+        !eggContainer ||
+        !snailContainer
+    ){
+        return;
+    }
+
+
+    /* -------------------------
+       HUEVOS INCUBANDO
+    ------------------------- */
+
+    const incubating =
+        game.eggs.filter(
+            egg =>
+                egg.status ===
+                "incubating"
+        );
+
+
+    eggContainer.innerHTML =
+        incubating.map(
+            (egg,index) => {
+
+                const remaining =
+                    Math.max(
+                        0,
+                        egg.hatchTime -
+                        Date.now()
+                    );
+
+
+                const seconds =
+                    Math.ceil(
+                        remaining / 1000
+                    );
+
+
+                const minutes =
+                    Math.floor(
+                        seconds / 60
+                    );
+
+
+                const sec =
+                    seconds % 60;
+
+
+                return `
+
+                <div
+                    class="nurseryEgg"
+                    style="
+                        left:${15 + index * 25}%;
+                        top:55%;
+                    "
+                >
+
+                    ${eggSVG(egg)}
+
+                    <div>
+                        ⏳
+                        ${minutes}:
+                        ${String(sec)
+                            .padStart(2,"0")}
+                    </div>
+
+                </div>
+
+                `;
+
+            }
+        ).join("");
+
+
+    /* -------------------------
+       BEBÉS
+    ------------------------- */
+
+    const babies =
+        game.nursery.filter(
+            n => n.status === "baby"
+        );
+
+
+    snailContainer.innerHTML =
+        babies.map(
+            baby => {
+
+                const s =
+                    species(baby.type);
+
+                if(!s){
+                    return "";
+                }
+
+
+                const remaining =
+                    Math.max(
+                        0,
+                        baby.growTime -
+                        Date.now()
+                    );
+
+
+                const minutes =
+                    Math.floor(
+                        remaining /
+                        60000
+                    );
+
+
+                const seconds =
+                    Math.floor(
+                        (remaining %
+                        60000) / 1000
+                    );
+
+
+                return `
+
+                <div
+                    class="baby"
+                    style="
+                        left:${baby.x}%;
+                        top:${baby.y}%;
+                    "
+                >
+
+                    ${babyModel(s)}
+
+                    <div
+                        style="
+                            text-align:center;
+                            font-size:11px;
+                            background:#ffffffe8;
+                            border-radius:8px;
+                            padding:3px;
+                        "
+                    >
+                        🐣 ${s.name}
+                        <br>
+                        ⏳
+                        ${minutes}:
+                        ${String(seconds)
+                            .padStart(2,"0")}
+                    </div>
+
+                </div>
+
+                `;
+
+            }
+        ).join("");
+
+
+    /* -------------------------
+       INFORMACIÓN
+    ------------------------- */
+
+    if(info){
+
+        if(
+            incubating.length === 0 &&
+            babies.length === 0
+        ){
+
+            info.innerHTML = `
+
+            <div class="card">
+
+                <h3>
+                    🌱 Criadero vacío
+                </h3>
+
+                <p>
+                    Ve a "Mis huevos" y coloca
+                    un huevo aquí para comenzar
+                    la incubación.
+                </p>
+
+            </div>
+
+            `;
+
+        }
+
+        else{
+
+            info.innerHTML = `
+
+            <div class="card">
+
+                <h3>
+                    🌱 Criadero activo
+                </h3>
+
+                <p>
+                    🥚 Incubando:
+                    <b>${incubating.length}</b>
+                </p>
+
+                <p>
+                    🐣 Bebés:
+                    <b>${babies.length}</b>
+                </p>
+
+                <p>
+                    Los huevos eclosionan
+                    automáticamente.
+                </p>
+
+            </div>
+
+            `;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   MISIONES
+========================================================= */
+
+function renderMissions(){
+
+    const container =
+        document.getElementById(
+            "missions"
+        );
+
+
+    if(!container){
+        return;
+    }
+
+
+    const missions = [
+
+        {
+            name:"🐌 Primer caracol",
+            goal:1,
+            value:game.snails.length,
+            reward:50
+        },
+
+        {
+            name:"🍽️ Alimentar 5 veces",
+            goal:5,
+            value:game.feed,
+            reward:30
+        },
+
+        {
+            name:"❤️ Acariciar 5 veces",
+            goal:5,
+            value:game.pet,
+            reward:30
+        },
+
+        {
+            name:"📖 Descubrir 5 especies",
+            goal:5,
+            value:game.discovered.length,
+            reward:75
+        },
+
+        {
+            name:"🐌 Conseguir 10 caracoles",
+            goal:10,
+            value:game.snails.length,
+            reward:100
+        }
+
+    ];
+
+
+    container.innerHTML =
+        missions.map(
+            mission => {
+
+                const progress =
+                    Math.min(
+                        100,
+                        mission.value /
+                        mission.goal *
+                        100
+                    );
+
+
+                return `
+
+                <div class="card">
+
+                    <h3>
+                        ${mission.name}
+                    </h3>
+
+                    <p>
+                        ${Math.min(
+                            mission.value,
+                            mission.goal
+                        )}
+                        /
+                        ${mission.goal}
+                    </p>
+
+                    <div class="bar">
+
+                        <div
+                            class="fill happy"
+                            style="
+                                width:${progress}%;
+                            "
+                        ></div>
+
+                    </div>
+
+                    <p>
+                        🎁 Recompensa:
+                        ${mission.reward}
+                        monedas
+                    </p>
+
+                </div>
+
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+/* =========================================================
+   ESTADÍSTICAS SUPERIORES
+========================================================= */
+
+function renderStats(){
+
+    const coins =
+        document.getElementById("coins");
+
+    const count =
+        document.getElementById("count");
+
+    const eggCount =
+        document.getElementById("eggCount");
+
+    const discCount =
+        document.getElementById("discCount");
+
+
+    if(coins){
+
+        coins.textContent =
+            game.coins;
+
+    }
+
+
+    if(count){
+
+        count.textContent =
+            game.snails.length +
+            "/" +
+            MAX_SNAILS;
+
+    }
+
+
+    if(eggCount){
+
+        eggCount.textContent =
+            game.eggs.filter(
+                e =>
+                    e.status ===
+                    "inventory"
+            ).length;
+
+    }
+
+
+    if(discCount){
+
+        discCount.textContent =
+            game.discovered.length;
+
+    }
+
+
+    const clock =
+        document.getElementById("clock");
+
+
+    if(clock){
+
+        clock.textContent =
+            game.night
+            ? "🌙 Noche"
+            : "☀️ Día";
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER PRINCIPAL
+========================================================= */
+
+function render(){
+
+    renderStats();
+
+    renderTerrarium();
+
+    renderSnailCards();
+
+    renderBook();
+
+    renderEnvelopeShop();
+
+    renderEggs();
+
+    renderNursery();
+
+    renderMissions();
+
+    renderGameScores();
+
+}
+
+
+/* =========================================================
+   MEJORES PUNTUACIONES DE MINIJUEGOS
+========================================================= */
+
+function renderGameScores(){
+
+    if(!game.highScores){
+        return;
+    }
+
+    const foodBest =
+        document.getElementById("foodBest");
+
+    const starBest =
+        document.getElementById("starBest");
+
+    const snakeBest =
+        document.getElementById("snakeBest");
+
+    if(foodBest){
+        foodBest.textContent = game.highScores.food;
+    }
+
+    if(starBest){
+        starBest.textContent = game.highScores.star;
+    }
+
+    if(snakeBest){
+        snakeBest.textContent = game.highScores.snake;
+    }
+
+}
+
+
+/* =========================================================
+   ACTUALIZACIÓN VISUAL
+========================================================= */
+
+setInterval(() => {
+
+    renderStats();
+
+    renderNursery();
+
+    renderMissions();
+
+},1000);
+
+
+/* =========================================================
+   PRIMER RENDER
+========================================================= */
+
+render();
+
+</script>
+<script>
+
+/* =========================================================
+   GUARDADO Y CARGA
+
+   El progreso vive en Drive (un JSON por usuario, vía el
+   backend de Apps Script) y se cachea en localStorage con
+   una clave por usuario para poder mostrar algo mientras
+   la nube responde. Sin sesión iniciada no se guarda ni
+   se carga nada. Ver el bloque de AUTENTICACIÓN Y
+   SINCRONIZACIÓN, al final del archivo, para currentUser,
+   localCacheKey() y syncGameToCloud().
+========================================================= */
+
+function saveGame(silent){
+
+    if(!currentUser){
+        return;
+    }
+
+
+    try{
+
+        localStorage.setItem(
+            localCacheKey(),
+            JSON.stringify(game)
+        );
+
+        if(!silent){
+
+            message(
+                "💾 ¡Partida guardada correctamente!"
+            );
+
+        }
+
+        syncGameToCloud();
+
+    }catch(error){
+
+        message(
+            "❌ No se pudo guardar la partida."
+        );
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* =========================================================
+   CARGAR PARTIDA
+========================================================= */
+
+function loadGame(){
+
+    if(!currentUser){
+        return;
+    }
+
+    message(
+        "📂 Cargando tu progreso..."
+    );
+
+    loadGameFromCloud(currentUser,currentPassword)
+        .then(loaded => {
+
+            applyLoadedGame(loaded);
+
+            message(
+                "📂 ¡Partida cargada!"
+            );
+
+            render();
+
+        })
+        .catch(error => {
+
+            message(
+                "❌ No se pudo cargar la partida desde la nube."
+            );
+
+            console.error(error);
+
+        });
+
+}
+
+
+/* =========================================================
+   APLICAR PARTIDA CARGADA
+========================================================= */
+
+function applyLoadedGame(loaded){
+
+    if(!loaded || typeof loaded !== "object"){
+        return;
+    }
+
+    game = {
+
+        ...game,
+
+        ...loaded,
+
+        snails:
+            Array.isArray(
+                loaded.snails
+            )
+            ? loaded.snails
+            : [],
+
+        eggs:
+            Array.isArray(
+                loaded.eggs
+            )
+            ? loaded.eggs
+            : [],
+
+        envelopes:
+            Array.isArray(
+                loaded.envelopes
+            )
+            ? loaded.envelopes
+            : [],
+
+        nursery:
+            Array.isArray(
+                loaded.nursery
+            )
+            ? loaded.nursery
+            : [],
+
+        discovered:
+            Array.isArray(
+                loaded.discovered
+            )
+            ? loaded.discovered
+            : [],
+
+        foods:
+            Array.isArray(
+                loaded.foods
+            )
+            ? loaded.foods
+            : []
+
+    };
+
+}
+
+
+/* =========================================================
+   REINICIAR PARTIDA
+========================================================= */
+
+function resetGame(){
+
+    if(!currentUser){
+        return;
+    }
+
+    const confirmReset =
+        confirm(
+            "⚠️ ¿Seguro que quieres borrar toda la partida?"
+        );
+
+
+    if(!confirmReset){
+        return;
+    }
+
+
+    localStorage.removeItem(
+        localCacheKey()
+    );
+
+
+    game = {
+
+        coins:300,
+
+        snails:[],
+
+        eggs:[],
+
+        envelopes:[],
+
+        nursery:[],
+
+        discovered:[],
+
+        foods:[],
+
+        night:false,
+
+        seconds:0,
+
+        feed:0,
+
+        pet:0,
+
+        daily:false,
+
+        highScores:{
+            food:0,
+            star:0,
+            snake:0
+        }
+
+    };
+
+
+    message(
+        "🗑️ Partida reiniciada."
+    );
+
+
+    render();
+
+    syncGameToCloud();
+
+}
+
+
+/* =========================================================
+   GUARDADO AUTOMÁTICO
+========================================================= */
+
+setInterval(() => {
+
+    saveGame(true);
+
+},30000);
+
+
+/* =========================================================
+   RELOJ DEL REFUGIO
+========================================================= */
+
+function updateClock(){
+
+    game.seconds =
+        (game.seconds + 1) %
+        120;
+
+
+    const isNight =
+        game.seconds >= 60;
+
+
+    if(
+        game.night !== isNight
+    ){
+
+        game.night =
+            isNight;
+
+
+        const terrarium =
+            document.getElementById(
+                "terrarium"
+            );
+
+
+        if(terrarium){
+
+            terrarium.classList.toggle(
+                "night",
+                game.night
+            );
+
+        }
+
+
+        renderStats();
+
+    }
+
+}
+
+
+/* =========================================================
+   ACTUALIZAR RELOJ
+========================================================= */
+
+setInterval(
+    updateClock,
+    1000
+);
+
+
+/* =========================================================
+   APLICAR NOCHE
+
+   (El movimiento de caracoles y la actualización de
+   hambre/energía/felicidad/burbujas ya corren una sola
+   vez cada 100ms desde el bucle de vida principal, más
+   arriba. Antes había un segundo bucle duplicado acá
+   que hacía que todo avanzara al doble de velocidad.)
+========================================================= */
+
+function applyNightMode(){
+
+    const terrarium =
+        document.getElementById(
+            "terrarium"
+        );
+
+
+    if(terrarium){
+
+        terrarium.classList.toggle(
+            "night",
+            game.night
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RECUPERACIÓN AUTOMÁTICA
+
+   Ya no se recupera una partida genérica de localStorage
+   al cargar la página: el progreso está atado a cada
+   usuario y se carga recién después de iniciar sesión
+   (ver bloque de AUTENTICACIÓN Y SINCRONIZACIÓN al final
+   del archivo).
+========================================================= */
+
+applyNightMode();
+
+</script>
+<script>
+
+/* =========================================================
+   MINIJUEGO: ATRAPA COMIDA
+========================================================= */
+
+let foodGameTimer = null;
+let foodGameRunning = false;
+let foodGamePoints = 0;
+
+
+function foodGame(){
+
+    const box =
+        document.getElementById(
+            "foodGameBox"
+        );
+
+    const score =
+        document.getElementById(
+            "foodScore"
+        );
+
+
+    if(!box || !score){
+        return;
+    }
+
+
+    if(foodGameRunning){
+        return;
+    }
+
+
+    foodGameRunning = true;
+    foodGamePoints = 0;
+
+    score.textContent = "0";
+
+    box.innerHTML = "";
+
+
+    let remaining = 20;
+
+
+    const timer =
+        document.createElement("div");
+
+    timer.style.position = "absolute";
+    timer.style.top = "5px";
+    timer.style.right = "8px";
+    timer.style.background = "#ffffffdd";
+    timer.style.padding = "5px 9px";
+    timer.style.borderRadius = "8px";
+    timer.style.fontWeight = "bold";
+    timer.textContent =
+        "⏱️ " + remaining;
+
+
+    box.appendChild(timer);
+
+
+    function spawnFood(){
+
+        if(!foodGameRunning){
+            return;
+        }
+
+
+        const item =
+            document.createElement("button");
+
+
+        const types =
+            Object.keys(FOOD);
+
+
+        const type =
+            random(types);
+
+
+        item.textContent =
+            FOOD[type];
+
+
+        item.style.position =
+            "absolute";
+
+        item.style.fontSize =
+            "30px";
+
+        item.style.padding =
+            "3px";
+
+        item.style.background =
+            "transparent";
+
+        item.style.left =
+            Math.random()*85 + "%";
+
+        item.style.top =
+            35 +
+            Math.random()*55 + "%";
+
+
+        item.onclick = () => {
+
+            foodGamePoints++;
+
+            score.textContent =
+                foodGamePoints;
+
+            item.remove();
+
+            spawnFood();
+
+        };
+
+
+        box.appendChild(item);
+
+
+        setTimeout(
+            () => {
+
+                if(item.parentNode){
+                    item.remove();
+                }
+
+            },
+            1500
+        );
+
+    }
+
+
+    spawnFood();
+
+
+    foodGameTimer =
+        setInterval(() => {
+
+            remaining--;
+
+            timer.textContent =
+                "⏱️ " + remaining;
+
+
+            spawnFood();
+
+
+            if(remaining <= 0){
+
+                clearInterval(
+                    foodGameTimer
+                );
+
+                foodGameRunning =
+                    false;
+
+
+                game.coins +=
+                    foodGamePoints;
+
+
+                if(
+                    foodGamePoints >
+                    game.highScores.food
+                ){
+
+                    game.highScores.food =
+                        foodGamePoints;
+
+                }
+
+
+                message(
+                    "🎮 ¡Juego terminado! +" +
+                    foodGamePoints +
+                    " monedas."
+                );
+
+
+                timer.textContent =
+                    "🏁 Fin";
+
+
+                renderStats();
+
+                renderGameScores();
+
+                saveGame(true);
+
+            }
+
+        },1000);
+
+}
+
+
+/* =========================================================
+   MINIJUEGO: ATRAPA ESTRELLAS
+========================================================= */
+
+let starGameTimer = null;
+let starGameRunning = false;
+let starGamePoints = 0;
+
+
+function starGame(){
+
+    const box =
+        document.getElementById(
+            "starGameBox"
+        );
+
+    const score =
+        document.getElementById(
+            "starScore"
+        );
+
+
+    if(!box || !score){
+        return;
+    }
+
+
+    if(starGameRunning){
+        return;
+    }
+
+
+    starGameRunning = true;
+    starGamePoints = 0;
+
+    score.textContent = "0";
+
+    box.innerHTML = "";
+
+
+    let remaining = 20;
+
+
+    const timer =
+        document.createElement("div");
+
+    timer.style.position =
+        "absolute";
+
+    timer.style.top =
+        "5px";
+
+    timer.style.right =
+        "8px";
+
+    timer.style.background =
+        "#ffffffdd";
+
+    timer.style.padding =
+        "5px 9px";
+
+    timer.style.borderRadius =
+        "8px";
+
+    timer.style.fontWeight =
+        "bold";
+
+    timer.textContent =
+        "⏱️ " + remaining;
+
+
+    box.appendChild(timer);
+
+
+    function spawnStar(){
+
+        if(!starGameRunning){
+            return;
+        }
+
+
+        const star =
+            document.createElement("button");
+
+
+        star.textContent =
+            "⭐";
+
+
+        star.style.position =
+            "absolute";
+
+        star.style.fontSize =
+            "30px";
+
+        star.style.padding =
+            "3px";
+
+        star.style.background =
+            "transparent";
+
+        star.style.left =
+            Math.random()*85 + "%";
+
+        star.style.top =
+            35 +
+            Math.random()*55 + "%";
+
+
+        star.onclick = () => {
+
+            starGamePoints++;
+
+            score.textContent =
+                starGamePoints;
+
+            star.remove();
+
+            spawnStar();
+
+        };
+
+
+        box.appendChild(star);
+
+
+        setTimeout(
+            () => {
+
+                if(star.parentNode){
+                    star.remove();
+                }
+
+            },
+            1300
+        );
+
+    }
+
+
+    spawnStar();
+
+
+    starGameTimer =
+        setInterval(() => {
+
+            remaining--;
+
+            timer.textContent =
+                "⏱️ " + remaining;
+
+
+            spawnStar();
+
+
+            if(remaining <= 0){
+
+                clearInterval(
+                    starGameTimer
+                );
+
+                starGameRunning =
+                    false;
+
+
+                game.coins +=
+                    starGamePoints * 2;
+
+
+                if(
+                    starGamePoints >
+                    game.highScores.star
+                ){
+
+                    game.highScores.star =
+                        starGamePoints;
+
+                }
+
+
+                message(
+                    "⭐ ¡Juego terminado! +" +
+                    starGamePoints * 2 +
+                    " monedas."
+                );
+
+
+                timer.textContent =
+                    "🏁 Fin";
+
+
+                renderStats();
+
+                renderGameScores();
+
+                saveGame(true);
+
+            }
+
+        },1000);
+
+}
+
+
+/* =========================================================
+   MINIJUEGO: SNAKE
+========================================================= */
+
+/*
+   El tamaño de celda objetivo es fijo; la cantidad de
+   columnas y filas se calcula según el tamaño real del
+   recuadro en cada partida, para que las celdas siempre
+   salgan cuadradas Y el tablero llene el recuadro entero
+   (sin espacio muerto ni celdas estiradas).
+*/
+
+const SNAKE_TARGET_CELL = 16;
+const SNAKE_MIN_COLS = 10;
+const SNAKE_MIN_ROWS = 8;
+const SNAKE_TICK_MS = 120;
+
+/*
+   Sistema de niveles: cada SNAKE_POINTS_PER_LEVEL premios
+   sube un nivel. A partir del nivel 2 aparecen obstáculos:
+   manchas irregulares de SNAKE_OBSTACLE_CELLS celdas
+   conectadas (no cuadrados perfectos, para que se vean más
+   como rocas que como bloques), más bloques por nivel con
+   un tope, y el juego se acelera un poco (con un piso para
+   que siga siendo jugable). Al subir de nivel el juego se
+   pausa de verdad hasta que el jugador presiona una tecla
+   o toca un botón, no se reanuda solo.
+*/
+
+const SNAKE_POINTS_PER_LEVEL = 20;
+const SNAKE_OBSTACLE_CELLS = 16;
+const SNAKE_OBSTACLES_PER_LEVEL = 1;
+const SNAKE_MAX_OBSTACLE_BLOCKS = 6;
+const SNAKE_LEVEL_SPEEDUP_MS = 8;
+const SNAKE_MIN_TICK_MS = 70;
+
+/*
+   Al chocar, si ya comió al menos un premio y tiene
+   monedas suficientes, se le ofrece volver al estado
+   justo después de ese último premio a cambio de
+   SNAKE_REVIVE_COST monedas.
+*/
+
+const SNAKE_REVIVE_COST = 50;
+
+let snakeCols = 18;
+let snakeRows = 14;
+
+let snakeTimer = null;
+let snakeRunning = false;
+let snakeAwaitingContinue = false;
+let snakePoints = 0;
+let snakeLevel = 1;
+let snakeCurrentTickMs = SNAKE_TICK_MS;
+let snakeObstacles = [];
+let snakeCheckpoint = null;
+let snakeBody = [];
+let snakeDirection = "right";
+
+/*
+   Cola de direcciones pendientes (máximo 2). Si solo se
+   guardara "la próxima" dirección en una variable suelta,
+   dos toques de flecha rápidos (algo normal maniobrando
+   cerca de la comida) hacían que el segundo pisara al
+   primero antes de que el juego llegara a aplicarlo, y se
+   sentía como que el juego "se comía" la tecla.
+*/
+
+let snakeDirectionQueue = [];
+
+let snakeFood = {x:0,y:0};
+let snakeCellSize = 16;
+let snakeKeyHandler = null;
+
+
+/* =========================================================
+   SONIDO (síntesis con Web Audio, sin archivos externos)
+========================================================= */
+
+const SNAKE_MUSIC_NOTES = [
+    220.00, 246.94, 261.63, 293.66,
+    329.63, 293.66, 261.63, 246.94
+];
+
+let snakeAudioCtx = null;
+let snakeMuted = false;
+let snakeMusicTimer = null;
+let snakeMusicIndex = 0;
+
+
+function getSnakeAudioContext(){
+
+    if(!snakeAudioCtx){
+
+        snakeAudioCtx =
+            new (window.AudioContext || window.webkitAudioContext)();
+
+    }
+
+    if(snakeAudioCtx.state === "suspended"){
+        snakeAudioCtx.resume();
+    }
+
+    return snakeAudioCtx;
+
+}
+
+
+function playSnakeTone(freq,type,volume,duration){
+
+    if(snakeMuted){
+        return;
+    }
+
+    const ctx = getSnakeAudioContext();
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq,ctx.currentTime);
+
+    gain.gain.setValueAtTime(0.0001,ctx.currentTime);
+
+    gain.gain.exponentialRampToValueAtTime(
+        volume,
+        ctx.currentTime + 0.015
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        ctx.currentTime + duration
+    );
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + duration + 0.02);
+
+}
+
+
+function playSnakeEatSound(){
+
+    playSnakeTone(560,"square",0.22,0.09);
+
+    setTimeout(
+        () => playSnakeTone(880,"square",0.18,0.09),
+        60
+    );
+
+}
+
+
+function playSnakeCrashSound(){
+
+    playSnakeTone(160,"sawtooth",0.22,0.35);
+
+}
+
+
+function playSnakeLevelUpSound(){
+
+    /* Acorde ascendente (Do-Mi-Sol), sensación de logro */
+
+    const notes = [523.25,659.25,783.99];
+
+    notes.forEach((freq,index) => {
+
+        setTimeout(
+            () => playSnakeTone(freq,"square",0.2,0.16),
+            index * 90
+        );
+
+    });
+
+}
+
+
+function startSnakeMusic(){
+
+    stopSnakeMusic();
+
+    if(snakeMuted){
+        return;
+    }
+
+    const noteInterval =
+        Math.max(90,snakeCurrentTickMs * 2);
+
+    snakeMusicTimer =
+        setInterval(() => {
+
+            playSnakeTone(
+                SNAKE_MUSIC_NOTES[
+                    snakeMusicIndex %
+                    SNAKE_MUSIC_NOTES.length
+                ],
+                "triangle",
+                0.07,
+                0.18
+            );
+
+            snakeMusicIndex++;
+
+        },noteInterval);
+
+}
+
+
+function stopSnakeMusic(){
+
+    if(snakeMusicTimer){
+
+        clearInterval(snakeMusicTimer);
+        snakeMusicTimer = null;
+
+    }
+
+}
+
+
+function toggleSnakeMute(){
+
+    snakeMuted = !snakeMuted;
+
+    const button =
+        document.getElementById("snakeMuteButton");
+
+    if(button){
+
+        button.textContent =
+            snakeMuted
+            ? "🔇 Sonido"
+            : "🔊 Sonido";
+
+    }
+
+    if(snakeMuted){
+
+        stopSnakeMusic();
+
+    }
+    else if(
+        snakeRunning &&
+        !snakeAwaitingContinue
+    ){
+
+        snakeMusicIndex = 0;
+        startSnakeMusic();
+
+    }
+
+}
+
+
+function snakeGame(){
+
+    const box =
+        document.getElementById("snakeGameBox");
+
+    const canvas =
+        document.getElementById("snakeCanvas");
+
+    const score =
+        document.getElementById("snakeScore");
+
+    if(!box || !canvas || !score){
+        return;
+    }
+
+    if(snakeRunning){
+        return;
+    }
+
+
+    snakeRunning = true;
+    snakeAwaitingContinue = false;
+    snakePoints = 0;
+    snakeLevel = 1;
+    snakeCurrentTickMs = SNAKE_TICK_MS;
+    snakeObstacles = [];
+    snakeCheckpoint = null;
+
+    score.textContent = "0";
+
+    const levelDisplay =
+        document.getElementById("snakeLevelDisplay");
+
+    if(levelDisplay){
+        levelDisplay.textContent = "1";
+    }
+
+    const banner =
+        document.getElementById("snakeLevelBanner");
+
+    if(banner){
+        banner.classList.add("hidden");
+    }
+
+    const reviveBanner =
+        document.getElementById("snakeReviveBanner");
+
+    if(reviveBanner){
+        reviveBanner.classList.add("hidden");
+    }
+
+
+    /*
+       Cuántas columnas/filas de ~16px entran en el
+       recuadro real, y de ahí el tamaño de celda exacto
+       (igual en los dos ejes, o sea, cuadrado) que hace
+       que esa cantidad de columnas/filas llene el
+       recuadro completo. El canvas se achica a ese
+       tamaño exacto (no se estira por CSS), y queda
+       centrado dentro del recuadro por flexbox.
+    */
+
+    snakeCols =
+        Math.max(
+            SNAKE_MIN_COLS,
+            Math.round(box.clientWidth / SNAKE_TARGET_CELL)
+        );
+
+    snakeRows =
+        Math.max(
+            SNAKE_MIN_ROWS,
+            Math.round(box.clientHeight / SNAKE_TARGET_CELL)
+        );
+
+    snakeCellSize =
+        Math.min(
+            box.clientWidth / snakeCols,
+            box.clientHeight / snakeRows
+        );
+
+    canvas.width =
+        Math.round(snakeCellSize * snakeCols);
+
+    canvas.height =
+        Math.round(snakeCellSize * snakeRows);
+
+
+    snakeDirection = "right";
+    snakeDirectionQueue = [];
+
+    snakeBody = [
+        {x:4,y:Math.floor(snakeRows / 2)},
+        {x:3,y:Math.floor(snakeRows / 2)},
+        {x:2,y:Math.floor(snakeRows / 2)}
+    ];
+
+    placeSnakeFood();
+
+
+    snakeKeyHandler = function(event){
+
+        if(snakeAwaitingContinue){
+
+            event.preventDefault();
+
+            resumeSnakeAfterLevel();
+
+        }
+
+        const map = {
+            ArrowUp:"up",
+            ArrowDown:"down",
+            ArrowLeft:"left",
+            ArrowRight:"right"
+        };
+
+        const dir = map[event.key];
+
+        if(dir){
+
+            event.preventDefault();
+
+            snakeSetDirection(dir);
+
+        }
+
+    };
+
+    document.addEventListener(
+        "keydown",
+        snakeKeyHandler
+    );
+
+
+    drawSnake();
+
+    snakeTimer =
+        setInterval(
+            snakeTick,
+            snakeCurrentTickMs
+        );
+
+
+    /*
+       getSnakeAudioContext() se llama acá adentro, dentro
+       del mismo click en "Jugar", para que el navegador lo
+       permita (los navegadores bloquean audio que no venga
+       de una interacción directa del usuario).
+    */
+
+    getSnakeAudioContext();
+
+    snakeMusicIndex = 0;
+
+    startSnakeMusic();
+
+}
+
+
+/* =========================================================
+   CAMBIAR DIRECCIÓN (teclado o botones táctiles)
+========================================================= */
+
+function snakeSetDirection(dir){
+
+    if(!snakeRunning){
+        return;
+    }
+
+    if(snakeAwaitingContinue){
+
+        resumeSnakeAfterLevel();
+
+    }
+
+    const opposite = {
+        up:"down",
+        down:"up",
+        left:"right",
+        right:"left"
+    };
+
+    /*
+       Se compara contra la última dirección ya encolada
+       (o la actual, si no hay cola) para no permitir una
+       reversa directa, incluso si el jugador encadena dos
+       toques antes del próximo paso del juego.
+    */
+
+    const lastQueued =
+        snakeDirectionQueue.length
+        ? snakeDirectionQueue[snakeDirectionQueue.length - 1]
+        : snakeDirection;
+
+    if(dir === lastQueued){
+        return;
+    }
+
+    if(opposite[dir] === lastQueued){
+        return;
+    }
+
+    if(snakeDirectionQueue.length < 2){
+
+        snakeDirectionQueue.push(dir);
+
+    }
+
+}
+
+
+/* =========================================================
+   UBICAR COMIDA
+========================================================= */
+
+function countOpenNeighbors(x,y){
+
+    const neighbors = [
+        {x:x + 1,y:y},
+        {x:x - 1,y:y},
+        {x:x,y:y + 1},
+        {x:x,y:y - 1}
+    ];
+
+    return neighbors.filter(
+        cell =>
+            cell.x >= 0 &&
+            cell.x < snakeCols &&
+            cell.y >= 0 &&
+            cell.y < snakeRows &&
+            !snakeObstacles.some(
+                obstacle =>
+                    obstacle.x === cell.x &&
+                    obstacle.y === cell.y
+            )
+    ).length;
+
+}
+
+
+function placeSnakeFood(){
+
+    /*
+       Se evita poner la comida en una celda casi
+       rodeada de obstáculos/paredes (menos de 2 salidas
+       libres): si no, agarrar el premio podía dejar a la
+       serpiente sin ningún movimiento posible para
+       seguir viva. Con un tope de intentos por si el
+       tablero está muy lleno de obstáculos, para no
+       quedar dando vueltas sin encontrar nada.
+    */
+
+    let position = null;
+    let fallback = null;
+    let attempts = 0;
+
+    while(attempts < 300){
+
+        attempts++;
+
+        const candidate = {
+            x:Math.floor(Math.random() * snakeCols),
+            y:Math.floor(Math.random() * snakeRows)
+        };
+
+        const blocked =
+            snakeBody.some(
+                segment =>
+                    segment.x === candidate.x &&
+                    segment.y === candidate.y
+            ) ||
+
+            snakeObstacles.some(
+                obstacle =>
+                    obstacle.x === candidate.x &&
+                    obstacle.y === candidate.y
+            );
+
+        if(blocked){
+            continue;
+        }
+
+        if(!fallback){
+            fallback = candidate;
+        }
+
+        if(countOpenNeighbors(candidate.x,candidate.y) >= 2){
+
+            position = candidate;
+            break;
+
+        }
+
+    }
+
+    snakeFood = position || fallback || {x:0,y:0};
+
+}
+
+
+/* =========================================================
+   GENERAR OBSTÁCULOS DEL NIVEL
+========================================================= */
+
+function growObstacleShape(startX,startY){
+
+    const cells = [{x:startX,y:startY}];
+
+    const inShape =
+        new Set([startX + "," + startY]);
+
+    let attempts = 0;
+
+    const maxAttempts =
+        SNAKE_OBSTACLE_CELLS * 50;
+
+    while(
+        cells.length < SNAKE_OBSTACLE_CELLS &&
+        attempts < maxAttempts
+    ){
+
+        attempts++;
+
+        /*
+           Se elige una celda al azar de las ya puestas y
+           se intenta crecer hacia un vecino libre: así la
+           forma sale irregular (como una roca), no un
+           cuadrado perfecto.
+        */
+
+        const base =
+            cells[
+                Math.floor(Math.random() * cells.length)
+            ];
+
+        const candidates =
+            [
+                {x:base.x + 1,y:base.y},
+                {x:base.x - 1,y:base.y},
+                {x:base.x,y:base.y + 1},
+                {x:base.x,y:base.y - 1}
+            ]
+            .filter(
+                cell =>
+                    cell.x >= 0 &&
+                    cell.x < snakeCols &&
+                    cell.y >= 0 &&
+                    cell.y < snakeRows &&
+                    !inShape.has(cell.x + "," + cell.y)
+            );
+
+        if(!candidates.length){
+            continue;
+        }
+
+        const next =
+            candidates[
+                Math.floor(Math.random() * candidates.length)
+            ];
+
+        cells.push(next);
+        inShape.add(next.x + "," + next.y);
+
+    }
+
+    return cells;
+
+}
+
+
+function generateSnakeObstacles(blockCount){
+
+    const obstacles = [];
+
+    let placed = 0;
+    let attempts = 0;
+
+    while(
+        placed < blockCount &&
+        attempts < blockCount * 40
+    ){
+
+        attempts++;
+
+        const anchorX =
+            Math.floor(Math.random() * snakeCols);
+
+        const anchorY =
+            Math.floor(Math.random() * snakeRows);
+
+        const blockCells =
+            growObstacleShape(anchorX,anchorY);
+
+
+        /* La forma quedó atrapada cerca de un borde */
+
+        if(blockCells.length < SNAKE_OBSTACLE_CELLS){
+            continue;
+        }
+
+
+        /* Margen de seguridad alrededor de la cabeza */
+
+        const head = snakeBody[0];
+
+        const tooCloseToHead =
+            blockCells.some(
+                cell =>
+                    Math.abs(cell.x - head.x) +
+                    Math.abs(cell.y - head.y) < 3
+            );
+
+        if(tooCloseToHead){
+            continue;
+        }
+
+
+        const overlapsSnake =
+            blockCells.some(
+                cell =>
+                    snakeBody.some(
+                        segment =>
+                            segment.x === cell.x &&
+                            segment.y === cell.y
+                    )
+            );
+
+        const overlapsFood =
+            blockCells.some(
+                cell =>
+                    cell.x === snakeFood.x &&
+                    cell.y === snakeFood.y
+            );
+
+        const overlapsExisting =
+            blockCells.some(
+                cell =>
+                    obstacles.some(
+                        obstacle =>
+                            obstacle.x === cell.x &&
+                            obstacle.y === cell.y
+                    )
+            );
+
+        if(
+            !overlapsSnake &&
+            !overlapsFood &&
+            !overlapsExisting
+        ){
+
+            obstacles.push(...blockCells);
+            placed++;
+
+        }
+
+    }
+
+    return obstacles;
+
+}
+
+
+/* =========================================================
+   SUBIR DE NIVEL
+========================================================= */
+
+function startSnakeLevel(){
+
+    playSnakeLevelUpSound();
+
+    const obstacleBlocks =
+        Math.min(
+            SNAKE_MAX_OBSTACLE_BLOCKS,
+            (snakeLevel - 1) * SNAKE_OBSTACLES_PER_LEVEL
+        );
+
+    snakeObstacles =
+        generateSnakeObstacles(obstacleBlocks);
+
+    snakeCurrentTickMs =
+        Math.max(
+            SNAKE_MIN_TICK_MS,
+            SNAKE_TICK_MS -
+            (snakeLevel - 1) * SNAKE_LEVEL_SPEEDUP_MS
+        );
+
+
+    clearInterval(snakeTimer);
+    snakeTimer = null;
+
+    stopSnakeMusic();
+
+
+    const levelDisplay =
+        document.getElementById("snakeLevelDisplay");
+
+    if(levelDisplay){
+        levelDisplay.textContent = snakeLevel;
+    }
+
+
+    const banner =
+        document.getElementById("snakeLevelBanner");
+
+    const bannerText =
+        document.getElementById("snakeLevelBannerText");
+
+    if(banner && bannerText){
+
+        bannerText.innerHTML =
+            "🎉 ¡Nivel " + snakeLevel + "!" +
+            (
+                snakeObstacles.length
+                ? " Cuidado con los obstáculos."
+                : " ¡Cada vez más rápido!"
+            ) +
+            "<br><span class=\"small\">" +
+            "Presioná una tecla o tocá un botón para seguir." +
+            "</span>";
+
+        banner.classList.remove("hidden");
+
+    }
+
+
+    drawSnake();
+
+
+    /*
+       El juego queda pausado de verdad (sin intervalo
+       corriendo) hasta que snakeSetDirection o el propio
+       manejador de teclado llamen a resumeSnakeAfterLevel.
+    */
+
+    snakeAwaitingContinue = true;
+
+}
+
+
+/* =========================================================
+   REANUDAR DESPUÉS DEL AVISO DE NIVEL
+========================================================= */
+
+function resumeSnakeAfterLevel(){
+
+    if(!snakeAwaitingContinue){
+        return;
+    }
+
+    snakeAwaitingContinue = false;
+
+    const banner =
+        document.getElementById("snakeLevelBanner");
+
+    if(banner){
+        banner.classList.add("hidden");
+    }
+
+    if(snakeRunning && !snakeTimer){
+
+        snakeTimer =
+            setInterval(
+                snakeTick,
+                snakeCurrentTickMs
+            );
+
+        startSnakeMusic();
+
+    }
+
+}
+
+
+/* =========================================================
+   AVANZAR UN PASO
+========================================================= */
+
+function snakeTick(){
+
+    if(snakeDirectionQueue.length){
+
+        snakeDirection =
+            snakeDirectionQueue.shift();
+
+    }
+
+    const deltas = {
+        up:{x:0,y:-1},
+        down:{x:0,y:1},
+        left:{x:-1,y:0},
+        right:{x:1,y:0}
+    };
+
+    const delta = deltas[snakeDirection];
+
+    const head = snakeBody[0];
+
+    const newHead = {
+        x:head.x + delta.x,
+        y:head.y + delta.y
+    };
+
+
+    /* Choque contra la pared */
+
+    if(
+        newHead.x < 0 ||
+        newHead.x >= snakeCols ||
+        newHead.y < 0 ||
+        newHead.y >= snakeRows
+    ){
+
+        snakeEnd();
+        return;
+
+    }
+
+
+    /*
+       ¿Este movimiento come comida? Hace falta saberlo
+       antes de revisar el choque contra sí mismo: si no
+       come, la cola se va a mover (desocupa su celda),
+       así que no cuenta como choque pisarla.
+    */
+
+    const willEat =
+        newHead.x === snakeFood.x &&
+        newHead.y === snakeFood.y;
+
+    const bodyToCheck =
+        willEat
+        ? snakeBody
+        : snakeBody.slice(0,-1);
+
+
+    /* Choque contra sí mismo */
+
+    if(
+
+        bodyToCheck.some(
+            segment =>
+                segment.x === newHead.x &&
+                segment.y === newHead.y
+        )
+
+    ){
+
+        snakeEnd();
+        return;
+
+    }
+
+
+    /* Choque contra un obstáculo */
+
+    if(
+
+        snakeObstacles.some(
+            obstacle =>
+                obstacle.x === newHead.x &&
+                obstacle.y === newHead.y
+        )
+
+    ){
+
+        snakeEnd();
+        return;
+
+    }
+
+
+    snakeBody.unshift(newHead);
+
+
+    if(willEat){
+
+        playSnakeEatSound();
+
+        snakePoints++;
+
+        const score =
+            document.getElementById("snakeScore");
+
+        if(score){
+            score.textContent = snakePoints;
+        }
+
+        placeSnakeFood();
+
+
+        const newLevel =
+            Math.floor(
+                snakePoints / SNAKE_POINTS_PER_LEVEL
+            ) + 1;
+
+        if(newLevel > snakeLevel){
+
+            snakeLevel = newLevel;
+
+            startSnakeLevel();
+
+        }
+
+
+        /*
+           Checkpoint: el estado justo después de comer
+           este premio, para poder volver acá si el
+           jugador decide "revivir" tras un choque.
+        */
+
+        snakeCheckpoint = {
+
+            body:
+                JSON.parse(JSON.stringify(snakeBody)),
+
+            direction:snakeDirection,
+
+            food:
+                {x:snakeFood.x,y:snakeFood.y},
+
+            obstacles:
+                JSON.parse(JSON.stringify(snakeObstacles)),
+
+            points:snakePoints,
+
+            level:snakeLevel,
+
+            tickMs:snakeCurrentTickMs
+
+        };
+
+    }
+    else{
+
+        snakeBody.pop();
+
+    }
+
+
+    drawSnake();
+
+}
+
+
+/* =========================================================
+   DIBUJAR
+========================================================= */
+
+function drawSnake(){
+
+    const canvas =
+        document.getElementById("snakeCanvas");
+
+    if(!canvas){
+        return;
+    }
+
+    const ctx =
+        canvas.getContext("2d");
+
+    ctx.fillStyle = "#16241a";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+
+    /* Comida */
+
+    ctx.fillStyle = "#e53935";
+
+    ctx.fillRect(
+        snakeFood.x * snakeCellSize,
+        snakeFood.y * snakeCellSize,
+        snakeCellSize,
+        snakeCellSize
+    );
+
+
+    /* Obstáculos */
+
+    ctx.fillStyle = "#8d6e52";
+
+    snakeObstacles.forEach(obstacle => {
+
+        ctx.fillRect(
+            obstacle.x * snakeCellSize + 1,
+            obstacle.y * snakeCellSize + 1,
+            snakeCellSize - 2,
+            snakeCellSize - 2
+        );
+
+    });
+
+
+    /* Cuerpo */
+
+    snakeBody.forEach((segment,index) => {
+
+        ctx.fillStyle =
+            index === 0
+            ? "#8acb65"
+            : "#43a84a";
+
+        ctx.fillRect(
+            segment.x * snakeCellSize + 1,
+            segment.y * snakeCellSize + 1,
+            snakeCellSize - 2,
+            snakeCellSize - 2
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   FIN DEL JUEGO
+========================================================= */
+
+function snakeEnd(){
+
+    clearInterval(snakeTimer);
+    snakeTimer = null;
+
+    stopSnakeMusic();
+    playSnakeCrashSound();
+
+
+    const canOfferRevive =
+        snakeCheckpoint !== null &&
+        game.coins >= SNAKE_REVIVE_COST;
+
+    if(canOfferRevive){
+
+        showSnakeReviveOffer();
+        return;
+
+    }
+
+
+    finishSnakeGame();
+
+}
+
+
+/* =========================================================
+   OFRECER REVIVIR
+========================================================= */
+
+function showSnakeReviveOffer(){
+
+    const banner =
+        document.getElementById("snakeReviveBanner");
+
+    const text =
+        document.getElementById("snakeReviveBannerText");
+
+    if(text){
+
+        text.textContent =
+            "💥 ¡Choque! ¿Volver a tu último premio por " +
+            SNAKE_REVIVE_COST +
+            " monedas? Tenés " +
+            game.coins +
+            ".";
+
+    }
+
+    if(banner){
+        banner.classList.remove("hidden");
+    }
+
+}
+
+
+/* =========================================================
+   REVIVIR (gasta monedas, vuelve al checkpoint)
+========================================================= */
+
+function reviveSnake(){
+
+    const banner =
+        document.getElementById("snakeReviveBanner");
+
+    if(banner){
+        banner.classList.add("hidden");
+    }
+
+    if(
+        !snakeCheckpoint ||
+        game.coins < SNAKE_REVIVE_COST
+    ){
+
+        finishSnakeGame();
+        return;
+
+    }
+
+
+    game.coins -= SNAKE_REVIVE_COST;
+
+    snakeBody =
+        JSON.parse(JSON.stringify(snakeCheckpoint.body));
+
+    snakeDirection = snakeCheckpoint.direction;
+    snakeDirectionQueue = [];
+
+    snakeFood =
+        {x:snakeCheckpoint.food.x,y:snakeCheckpoint.food.y};
+
+    snakeObstacles =
+        JSON.parse(
+            JSON.stringify(snakeCheckpoint.obstacles)
+        );
+
+    snakePoints = snakeCheckpoint.points;
+    snakeLevel = snakeCheckpoint.level;
+    snakeCurrentTickMs = snakeCheckpoint.tickMs;
+
+
+    const score =
+        document.getElementById("snakeScore");
+
+    if(score){
+        score.textContent = snakePoints;
+    }
+
+    const levelDisplay =
+        document.getElementById("snakeLevelDisplay");
+
+    if(levelDisplay){
+        levelDisplay.textContent = snakeLevel;
+    }
+
+
+    renderStats();
+
+    message(
+        "🔁 ¡Reviviste! -" +
+        SNAKE_REVIVE_COST +
+        " monedas."
+    );
+
+
+    drawSnake();
+
+
+    /*
+       No arranca de nuevo de inmediato: reutiliza la misma
+       pausa de "presioná una tecla" que el aviso de nivel,
+       para darle al jugador un momento de ubicarse antes de
+       que la serpiente vuelva a moverse.
+    */
+
+    const levelBanner =
+        document.getElementById("snakeLevelBanner");
+
+    const levelBannerText =
+        document.getElementById("snakeLevelBannerText");
+
+    if(levelBanner && levelBannerText){
+
+        levelBannerText.innerHTML =
+            "🔁 ¡Reviviste!" +
+            "<br><span class=\"small\">" +
+            "Presioná una tecla o tocá un botón para seguir." +
+            "</span>";
+
+        levelBanner.classList.remove("hidden");
+
+    }
+
+    snakeAwaitingContinue = true;
+
+    saveGame(true);
+
+}
+
+
+/* =========================================================
+   NO REVIVIR: TERMINAR LA PARTIDA
+========================================================= */
+
+function declineSnakeRevive(){
+
+    const banner =
+        document.getElementById("snakeReviveBanner");
+
+    if(banner){
+        banner.classList.add("hidden");
+    }
+
+    finishSnakeGame();
+
+}
+
+
+/* =========================================================
+   TERMINAR PARTIDA DE VERDAD
+========================================================= */
+
+function finishSnakeGame(){
+
+    snakeRunning = false;
+
+    if(snakeKeyHandler){
+
+        document.removeEventListener(
+            "keydown",
+            snakeKeyHandler
+        );
+
+        snakeKeyHandler = null;
+
+    }
+
+
+    game.coins += snakePoints;
+
+
+    if(snakePoints > game.highScores.snake){
+
+        game.highScores.snake = snakePoints;
+
+    }
+
+
+    message(
+        "🐍 ¡Choque! +" +
+        snakePoints +
+        " monedas."
+    );
+
+
+    renderStats();
+
+    renderGameScores();
+
+    saveGame(true);
+
+}
+
+
+/* =========================================================
+   LIMPIAR MINIJUEGOS AL CAMBIAR
+========================================================= */
+
+function stopMiniGames(){
+
+    if(foodGameTimer){
+
+        clearInterval(
+            foodGameTimer
+        );
+
+        foodGameTimer = null;
+
+    }
+
+
+    if(starGameTimer){
+
+        clearInterval(
+            starGameTimer
+        );
+
+        starGameTimer = null;
+
+    }
+
+
+    if(snakeTimer){
+
+        clearInterval(
+            snakeTimer
+        );
+
+        snakeTimer = null;
+
+    }
+
+
+    snakeAwaitingContinue = false;
+
+    stopSnakeMusic();
+
+
+    const reviveBanner =
+        document.getElementById("snakeReviveBanner");
+
+    if(reviveBanner){
+        reviveBanner.classList.add("hidden");
+    }
+
+
+    if(snakeKeyHandler){
+
+        document.removeEventListener(
+            "keydown",
+            snakeKeyHandler
+        );
+
+        snakeKeyHandler = null;
+
+    }
+
+
+    foodGameRunning = false;
+    starGameRunning = false;
+    snakeRunning = false;
+
+}
+
+
+/* =========================================================
+   MEJORAR showPanel
+========================================================= */
+
+const originalShowPanel =
+    showPanel;
+
+
+showPanel = function(id){
+
+    stopMiniGames();
+
+    originalShowPanel(id);
+
+};
+
+
+/* =========================================================
+   GUARDADO AL SALIR
+========================================================= */
+
+window.addEventListener(
+    "beforeunload",
+    () => {
+
+        if(!currentUser){
+            return;
+        }
+
+        try{
+
+            localStorage.setItem(
+                localCacheKey(),
+                JSON.stringify(game)
+            );
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INICIO FINAL
+========================================================= */
+
+applyNightMode();
+
+render();
+
+</script>
+<script>
+
+/* =========================================================
+   COMPATIBILIDAD Y CORRECCIONES FINALES
+========================================================= */
+
+/*
+   El tutorial original queda desactivado.
+   El juego comienza directamente en el terrario.
+*/
+
+(function removeTutorial(){
+
+    const tutorial =
+        document.getElementById("tutorial");
+
+    if(tutorial){
+
+        tutorial.remove();
+
+    }
+
+})();
+
+
+/* =========================================================
+   CREAR CONTENEDOR DE HUEVOS DEL CRIADERO
+========================================================= */
+
+(function prepareNursery(){
+
+    const nursery =
+        document.getElementById("nursery");
+
+    if(!nursery){
+        return;
+    }
+
+
+    if(
+        !document.getElementById(
+            "nurseryEggs"
+        )
+    ){
+
+        const eggs =
+            document.createElement("div");
+
+        eggs.id =
+            "nurseryEggs";
+
+        eggs.style.position =
+            "absolute";
+
+        eggs.style.inset =
+            "0";
+
+        eggs.style.pointerEvents =
+            "none";
+
+        nursery.appendChild(eggs);
+
+    }
+
+})();
+
+
+/* =========================================================
+   SEGURIDAD PARA DATOS ANTIGUOS
+========================================================= */
+
+function normalizeGame(){
+
+    if(!game || typeof game !== "object"){
+
+        game = {
+
+            coins:300,
+            snails:[],
+            eggs:[],
+            envelopes:[],
+            nursery:[],
+            discovered:[],
+            foods:[],
+            night:false,
+            seconds:0,
+            feed:0,
+            pet:0,
+            daily:false
+
+        };
+
+    }
+
+
+    if(!Array.isArray(game.snails))
+        game.snails = [];
+
+
+    if(!Array.isArray(game.eggs))
+        game.eggs = [];
+
+
+    if(!Array.isArray(game.envelopes))
+        game.envelopes = [];
+
+
+    if(!Array.isArray(game.nursery))
+        game.nursery = [];
+
+
+    if(!Array.isArray(game.discovered))
+        game.discovered = [];
+
+
+    if(!Array.isArray(game.foods))
+        game.foods = [];
+
+
+    if(typeof game.coins !== "number")
+        game.coins = 300;
+
+
+    if(typeof game.seconds !== "number")
+        game.seconds = 0;
+
+
+    if(typeof game.feed !== "number")
+        game.feed = 0;
+
+
+    if(typeof game.pet !== "number")
+        game.pet = 0;
+
+
+    if(typeof game.night !== "boolean")
+        game.night = false;
+
+
+    if(!game.highScores || typeof game.highScores !== "object"){
+
+        game.highScores = {
+            food:0,
+            star:0,
+            snake:0
+        };
+
+    }
+
+
+    if(typeof game.highScores.food !== "number")
+        game.highScores.food = 0;
+
+
+    if(typeof game.highScores.star !== "number")
+        game.highScores.star = 0;
+
+
+    if(typeof game.highScores.snake !== "number")
+        game.highScores.snake = 0;
+
+}
+
+
+/* =========================================================
+   NORMALIZAR
+   (INCUBATION_TIME y BABY_GROW_TIME ya están
+   declaradas más arriba, en la sección de
+   configuración: ambas duran 5 minutos)
+========================================================= */
+
+normalizeGame();
+
+
+/* =========================================================
+   EVITAR MÁS DE 50 CARACOLES
+========================================================= */
+
+function canAddSnail(){
+
+    return (
+        game.snails.length <
+        MAX_SNAILS
+    );
+
+}
+
+
+/* =========================================================
+   CORRECCIÓN DE HUEVOS
+========================================================= */
+
+game.eggs.forEach(
+    egg => {
+
+        if(
+            !egg.status
+        ){
+
+            egg.status =
+                "inventory";
+
+        }
+
+        if(
+            egg.status ===
+            "incubating" &&
+            !egg.hatchTime
+        ){
+
+            egg.hatchTime =
+                Date.now() +
+                INCUBATION_TIME;
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CORRECCIÓN DE BEBÉS
+========================================================= */
+
+game.nursery.forEach(
+    item => {
+
+        if(
+            item.status === "baby" &&
+            !item.growTime
+        ){
+
+            item.growTime =
+                Date.now() +
+                BABY_GROW_TIME;
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CRIADERO: POSICIONES SVG
+========================================================= */
+
+function keepNurseryInside(){
+
+    game.nursery.forEach(
+        item => {
+
+            if(
+                item.status !== "baby"
+            ){
+                return;
+            }
+
+
+            item.x =
+                Math.max(
+                    5,
+                    Math.min(
+                        78,
+                        item.x || 20
+                    )
+                );
+
+
+            item.y =
+                Math.max(
+                    15,
+                    Math.min(
+                        55,
+                        item.y || 25
+                    )
+                );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   MOVIMIENTO SUAVE DE BEBÉS
+========================================================= */
+
+function moveBabies(){
+
+    game.nursery.forEach(
+        baby => {
+
+            if(
+                baby.status !== "baby"
+            ){
+                return;
+            }
+
+
+            if(
+                Math.random() < .03
+            ){
+
+                baby.x +=
+                    (Math.random() - .5) * 2;
+
+                baby.y +=
+                    (Math.random() - .5) * 1.5;
+
+            }
+
+        }
+    );
+
+
+    keepNurseryInside();
+
+}
+
+
+/* =========================================================
+   ANIMACIÓN DEL CRIADERO
+========================================================= */
+
+setInterval(
+    () => {
+
+        moveBabies();
+
+        renderNursery();
+
+    },
+    1000
+);
+
+
+/* =========================================================
+   LIMPIAR COMIDA DEMASIADO ANTIGUA
+========================================================= */
+
+function cleanOldFood(){
+
+    const limit =
+        Date.now() -
+        10 * 60 * 1000;
+
+
+    game.foods =
+        game.foods.filter(
+            food => {
+
+                if(!food.createdAt){
+
+                    food.createdAt =
+                        Date.now();
+
+                }
+
+                return (
+                    food.createdAt >
+                    limit
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   LIMPIEZA AUTOMÁTICA
+========================================================= */
+
+setInterval(
+    () => {
+
+        cleanOldFood();
+
+    },
+    60000
+);
+
+
+/* =========================================================
+   MENSAJE DE INICIO Y GUARDADO FINAL
+
+   Ahora se disparan al iniciar sesión (ver loginUser en
+   el bloque de AUTENTICACIÓN Y SINCRONIZACIÓN), no al
+   cargar la página, porque todavía no hay un usuario ni
+   una partida cargada en ese momento.
+========================================================= */
+
+
+/* =========================================================
+   RENDER FINAL
+========================================================= */
+
+normalizeGame();
+
+applyNightMode();
+
+render();
+
+
+/* =========================================================
+   FIN
+========================================================= */
+
+console.log(
+    "🐌 Refugio de Caracoles cargado correctamente."
+);
+
+console.log(
+    "🥚 Sistema de incubación: activo."
+);
+
+console.log(
+    "🌱 Criadero: activo."
+);
+
+console.log(
+    "🐌 Crecimiento de bebés: activo."
+);
+
+console.log(
+    "✉️ Sobres: activos."
+);
+
+console.log(
+    "🎮 Minijuegos: activos."
+);
+
+console.log(
+    "💾 Guardado automático: activo."
+);
+
+</script>
+<script>
+
+/* =========================================================
+   AUTENTICACIÓN Y SINCRONIZACIÓN CON DRIVE
+========================================================= */
+
+/*
+   URL del despliegue de Apps Script (backend + el propio
+   juego, servido vía HtmlService). Si alguna vez se vuelve
+   a desplegar en otra URL, actualizar acá.
+*/
+
+const APPS_SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbwXMXY9N7IHEnbFbonwtq8LBokuygTfOewalyhxMsgw_bhKfpPfUyRhUhVFRy-c7jM3Vw/exec";
+
+
+const REMEMBER_KEY =
+    "refugio_caracoles_ultimo_usuario";
+
+
+let currentUser = null;
+
+/*
+   La contraseña se guarda solo en memoria (nunca en
+   localStorage) para poder validar cada load/save contra
+   el backend, ya que no hay tokens de sesión. Se pierde
+   al cerrar sesión o al recargar la página.
+*/
+let currentPassword = null;
+
+let authMode = "login";
+
+
+/* =========================================================
+   CLAVE DE CACHÉ LOCAL POR USUARIO
+========================================================= */
+
+function localCacheKey(){
+
+    return (
+        "refugio_caracoles_partida_" +
+        currentUser
+    );
+
+}
+
+
+/* =========================================================
+   LLAMADA AL BACKEND (APPS SCRIPT)
+========================================================= */
+
+function apiRequest(action,payload){
+
+    if(
+        !APPS_SCRIPT_URL ||
+        APPS_SCRIPT_URL.indexOf("PEGA_AQUI") !== -1
+    ){
+
+        return Promise.reject(
+            new Error(
+                "Todavía no configuraste APPS_SCRIPT_URL " +
+                "en el archivo."
+            )
+        );
+
+    }
+
+    return fetch(APPS_SCRIPT_URL,{
+
+        method:"POST",
+
+        /*
+           text/plain evita que el navegador mande un
+           preflight OPTIONS, que Apps Script no maneja.
+        */
+        headers:{
+            "Content-Type":"text/plain;charset=utf-8"
+        },
+
+        body:JSON.stringify({
+            action:action,
+            ...payload
+        })
+
+    })
+        .then(response => response.json())
+        .then(result => {
+
+            if(!result || result.ok !== true){
+
+                throw new Error(
+                    (result && result.error) ||
+                    "Error desconocido del servidor."
+                );
+
+            }
+
+            return result;
+
+        });
+
+}
+
+
+/* =========================================================
+   CARGAR / GUARDAR PROGRESO EN LA NUBE
+========================================================= */
+
+function loadGameFromCloud(username,password){
+
+    return apiRequest("load",{username,password})
+        .then(result => result.data);
+
+}
+
+
+function syncGameToCloud(){
+
+    if(!currentUser || !currentPassword){
+        return;
+    }
+
+    apiRequest("save",{
+        username:currentUser,
+        password:currentPassword,
+        data:game
+    }).catch(error => {
+
+        console.warn(
+            "No se pudo sincronizar con la nube:",
+            error
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   VALIDACIÓN DE USUARIO
+========================================================= */
+
+function normalizeUsername(raw){
+
+    return (raw || "")
+        .trim()
+        .toLowerCase();
+
+}
+
+
+function isValidUsername(username){
+
+    return /^[a-z0-9_]{3,24}$/.test(username);
+
+}
+
+
+/* =========================================================
+   UI DEL FORMULARIO DE LOGIN
+========================================================= */
+
+function setAuthMessage(text,type){
+
+    const el =
+        document.getElementById("authMessage");
+
+    if(!el){
+        return;
+    }
+
+    el.textContent = text || "";
+
+    el.classList.remove("error","success");
+
+    if(type){
+        el.classList.add(type);
+    }
+
+}
+
+
+function setAuthLoading(isLoading){
+
+    const submitButton =
+        document.getElementById("authSubmitButton");
+
+    if(!submitButton){
+        return;
+    }
+
+    submitButton.disabled = isLoading;
+
+    submitButton.innerHTML =
+        isLoading
+
+        ? '<span class="authSpinner"></span>Un momento...'
+
+        : (
+            authMode === "register"
+            ? "Crear cuenta"
+            : "Iniciar sesión"
+        );
+
+}
+
+
+function setAuthMode(mode){
+
+    authMode = mode;
+
+    const tabLogin =
+        document.getElementById("authTabLogin");
+
+    const tabRegister =
+        document.getElementById("authTabRegister");
+
+    const switchButton =
+        document.querySelector(".authSwitch");
+
+    const passwordInput =
+        document.getElementById("authPassword");
+
+
+    if(mode === "register"){
+
+        tabLogin.classList.remove("active");
+        tabRegister.classList.add("active");
+
+        switchButton.textContent =
+            "¿Ya tenés cuenta? Iniciá sesión";
+
+        passwordInput.setAttribute(
+            "autocomplete","new-password"
+        );
+
+    }
+    else{
+
+        tabRegister.classList.remove("active");
+        tabLogin.classList.add("active");
+
+        switchButton.textContent =
+            "¿No tenés cuenta? Creá una";
+
+        passwordInput.setAttribute(
+            "autocomplete","current-password"
+        );
+
+    }
+
+    setAuthLoading(false);
+
+    setAuthMessage("");
+
+}
+
+
+function toggleAuthMode(){
+
+    setAuthMode(
+        authMode === "login"
+        ? "register"
+        : "login"
+    );
+
+}
+
+
+function handleAuthSubmit(event){
+
+    event.preventDefault();
+
+    const username =
+        normalizeUsername(
+            document.getElementById("authUsername").value
+        );
+
+    const password =
+        document.getElementById("authPassword").value;
+
+
+    if(!isValidUsername(username)){
+
+        setAuthMessage(
+            "El usuario debe tener 3 a 24 caracteres " +
+            "(letras, números o _).",
+            "error"
+        );
+
+        return false;
+
+    }
+
+    if(!password || password.length < 4){
+
+        setAuthMessage(
+            "La contraseña debe tener al menos 4 caracteres.",
+            "error"
+        );
+
+        return false;
+
+    }
+
+
+    if(authMode === "register"){
+        registerUser(username,password);
+    }
+    else{
+        loginUser(username,password);
+    }
+
+    return false;
+
+}
+
+
+/* =========================================================
+   REGISTRO
+========================================================= */
+
+function registerUser(username,password){
+
+    setAuthLoading(true);
+    setAuthMessage("");
+
+    apiRequest("register",{username,password})
+        .then(() => {
+
+            setAuthMessage(
+                "✅ Cuenta creada. ¡Iniciá sesión!",
+                "success"
+            );
+
+            setAuthMode("login");
+
+            document.getElementById(
+                "authUsername"
+            ).value = username;
+
+            document.getElementById(
+                "authPassword"
+            ).value = "";
+
+        })
+        .catch(error => {
+
+            setAuthMessage(
+                "❌ " + error.message,
+                "error"
+            );
+
+        })
+        .finally(() => {
+
+            setAuthLoading(false);
+
+        });
+
+}
+
+
+/* =========================================================
+   INICIO DE SESIÓN
+========================================================= */
+
+function loginUser(username,password){
+
+    setAuthLoading(true);
+    setAuthMessage("");
+
+    apiRequest("login",{username,password})
+        .then(result => {
+
+            currentUser = username;
+            currentPassword = password;
+
+            try{
+
+                localStorage.setItem(
+                    REMEMBER_KEY,
+                    username
+                );
+
+                const cached =
+                    localStorage.getItem(
+                        localCacheKey()
+                    );
+
+                if(cached){
+                    applyLoadedGame(
+                        JSON.parse(cached)
+                    );
+                }
+
+            }catch(error){
+
+                console.warn(error);
+
+            }
+
+            if(result.data){
+                applyLoadedGame(result.data);
+            }
+
+            enterGame();
+
+        })
+        .catch(error => {
+
+            setAuthMessage(
+                "❌ " + error.message,
+                "error"
+            );
+
+        })
+        .finally(() => {
+
+            setAuthLoading(false);
+
+        });
+
+}
+
+
+/* =========================================================
+   ENTRAR AL JUEGO
+========================================================= */
+
+function enterGame(){
+
+    const loginScreen =
+        document.getElementById("loginScreen");
+
+    const gameRoot =
+        document.getElementById("gameRoot");
+
+    if(loginScreen){
+        loginScreen.classList.add("hidden");
+    }
+
+    if(gameRoot){
+        gameRoot.classList.remove("hidden");
+    }
+
+    const sessionUser =
+        document.getElementById("sessionUser");
+
+    const optionsUser =
+        document.getElementById("optionsUser");
+
+    if(sessionUser){
+        sessionUser.textContent = currentUser;
+    }
+
+    if(optionsUser){
+        optionsUser.textContent = currentUser;
+    }
+
+    normalizeGame();
+
+    applyNightMode();
+
+    render();
+
+    message(
+        "🐌 ¡Bienvenido a tu Refugio de Caracoles, " +
+        currentUser +
+        "!"
+    );
+
+    saveGame(true);
+
+}
+
+
+/* =========================================================
+   CERRAR SESIÓN
+========================================================= */
+
+function logoutUser(){
+
+    if(currentUser){
+        saveGame(true);
+    }
+
+    currentUser = null;
+    currentPassword = null;
+
+    const loginScreen =
+        document.getElementById("loginScreen");
+
+    const gameRoot =
+        document.getElementById("gameRoot");
+
+    if(gameRoot){
+        gameRoot.classList.add("hidden");
+    }
+
+    if(loginScreen){
+        loginScreen.classList.remove("hidden");
+    }
+
+    document.getElementById("authPassword").value = "";
+
+    setAuthMode("login");
+
+}
+
+
+/* =========================================================
+   RECORDAR ÚLTIMO USUARIO (solo el nombre, no la clave)
+========================================================= */
+
+(function prefillLastUsername(){
+
+    try{
+
+        const last =
+            localStorage.getItem(REMEMBER_KEY);
+
+        if(last){
+
+            const field =
+                document.getElementById("authUsername");
+
+            if(field){
+                field.value = last;
+            }
+
+        }
+
+    }catch(error){
+
+        console.warn(error);
+
+    }
+
+})();
+
+</script>
+</body>
+</html>
