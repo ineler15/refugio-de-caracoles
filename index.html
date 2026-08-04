@@ -1688,6 +1688,13 @@ main{
 
 </style>
 
+<!--
+    Solo para el modo cooperativo de Snake (salas en tiempo
+    real vía Supabase Realtime broadcast, sin tabla nueva en
+    la base). El resto del juego no depende de esta librería.
+-->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
 </head>
 
 <body>
@@ -2497,7 +2504,14 @@ main{
     <h3>🐍 Snake</h3>
 
     <button onclick="snakeGame()">
-        ▶️ Jugar
+        ▶️ Solo
+    </button>
+
+    <button
+        type="button"
+        onclick="openSnakeCoopLobby()"
+    >
+        🤝 Cooperativo
     </button>
 
     <button
@@ -2509,8 +2523,65 @@ main{
         🔊 Sonido
     </button>
 
+    <div id="snakeCoopLobby" class="card hidden">
+
+        <p class="small">
+            Cooperativo: los dos controlan su propia
+            serpiente en el mismo tablero, comparten comida
+            y puntaje, y un choque de cualquiera termina la
+            partida para los dos.
+        </p>
+
+        <button type="button" onclick="createSnakeRoom()">
+            🆕 Crear sala
+        </button>
+
+        <input
+            type="text"
+            id="snakeJoinCodeInput"
+            placeholder="Código de sala"
+            maxlength="5"
+            style="width:110px;text-transform:uppercase;"
+        >
+
+        <button type="button" onclick="joinSnakeRoom()">
+            🔑 Unirme
+        </button>
+
+        <p
+            id="snakeCoopCodeDisplay"
+            class="hidden"
+            style="font-size:1.4em;font-weight:bold;"
+        ></p>
+
+        <p id="snakeCoopStatus" class="small"></p>
+
+        <button
+            type="button"
+            id="snakeCoopStartButton"
+            class="hidden"
+            onclick="startSnakeCoop()"
+        >
+            ▶️ Empezar
+        </button>
+
+        <button
+            type="button"
+            onclick="cancelSnakeCoop()"
+            style="background:var(--accent-2);"
+        >
+            ✖️ Cancelar
+        </button>
+
+    </div>
+
     <p class="small keyboardHint">
         Usá las flechas ⬆️➡️⬇️⬅️ del teclado para moverte.
+    </p>
+
+    <p id="snakeCoopLegend" class="small hidden">
+        🟢 Vos · 🔵
+        <span id="snakeCoopPartnerName"></span>
     </p>
 
     <div
@@ -2539,6 +2610,7 @@ main{
 
                 <button
                     type="button"
+                    id="snakeReviveYesButton"
                     onclick="reviveSnake()"
                 >
                     🔁 Revivir (-50 🪙)
@@ -2546,6 +2618,7 @@ main{
 
                 <button
                     type="button"
+                    id="snakeReviveNoButton"
                     onclick="declineSnakeRevive()"
                     style="background:var(--accent-2);"
                 >
@@ -8767,6 +8840,7 @@ let snakeRows = 14;
 let snakeTimer = null;
 let snakeRunning = false;
 let snakeAwaitingContinue = false;
+let snakeReviveOffered = false;
 let snakePoints = 0;
 let snakeLevel = 1;
 let snakeCurrentTickMs = SNAKE_TICK_MS;
@@ -8789,6 +8863,31 @@ let snakeDirectionQueue = [];
 let snakeFood = {x:0,y:0};
 let snakeCellSize = 16;
 let snakeKeyHandler = null;
+
+
+/* =========================================================
+   MODO COOPERATIVO (dos jugadores, Supabase Realtime)
+
+   El host simula el juego entero (las dos serpientes, comida,
+   obstáculos, puntaje) y le transmite el estado a la invitada
+   en cada paso; la invitada nunca corre snakeTick() por su
+   cuenta, solo dibuja lo último que recibió y manda sus
+   movimientos por el canal. Así los dos lados siempre están
+   de acuerdo sobre qué pasó, sin tener que sincronizar dos
+   simulaciones independientes.
+========================================================= */
+
+let snakeCoopMode = null;
+let snakeRoomCode = null;
+let snakeRoomChannel = null;
+let snakePartnerUsername = null;
+let snakePartnerConnected = false;
+let snakeHelloTimer = null;
+
+/* Solo el host las usa: la serpiente/cola de la invitada */
+let snakeBody2 = [];
+let snakeDirection2 = "left";
+let snakeDirectionQueue2 = [];
 
 
 /* =========================================================
@@ -8973,6 +9072,634 @@ function toggleSnakeMute(){
 }
 
 
+/* =========================================================
+   SALA COOPERATIVA — CREAR / UNIRSE / SALIR
+
+   El canal se llama "snake-coop-<código>" y solo lleva
+   mensajes broadcast efímeros (nada se guarda en la base:
+   no hace falta una tabla nueva, la sala deja de existir en
+   cuanto los dos se desconectan del canal).
+========================================================= */
+
+function generateRoomCode(){
+
+    /* Sin 0/O ni 1/I: se confunden al dictarle el código a alguien */
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+    let code = "";
+
+    for(let i = 0;i < 5;i++){
+
+        code +=
+            chars[
+                Math.floor(Math.random() * chars.length)
+            ];
+
+    }
+
+    return code;
+
+}
+
+
+function setSnakeCoopStatus(text){
+
+    const status =
+        document.getElementById("snakeCoopStatus");
+
+    if(status){
+        status.textContent = text;
+    }
+
+}
+
+
+function sendSnakeMsg(payload){
+
+    if(!snakeRoomChannel){
+        return;
+    }
+
+    snakeRoomChannel.send({
+        type:"broadcast",
+        event:"msg",
+        payload:payload
+    });
+
+}
+
+
+function subscribeSnakeRoom(code,role){
+
+    if(!supabaseClient){
+
+        setSnakeCoopStatus(
+            "❌ No se pudo conectar (falta supabase-js)."
+        );
+
+        return;
+
+    }
+
+    snakeRoomCode = code;
+    snakeCoopMode = role;
+    snakePartnerConnected = false;
+    snakePartnerUsername = null;
+
+    snakeRoomChannel =
+        supabaseClient.channel("snake-coop-" + code);
+
+    snakeRoomChannel.on(
+        "broadcast",
+        {event:"msg"},
+        message => handleSnakeRoomMessage(message.payload)
+    );
+
+    snakeRoomChannel.subscribe(status => {
+
+        if(status !== "SUBSCRIBED"){
+            return;
+        }
+
+        setSnakeCoopStatus(
+            role === "host"
+
+            ? "📋 Código de sala: " + code +
+              ". Esperando al otro jugador..."
+
+            : "🔌 Conectando con la sala " + code + "..."
+
+        );
+
+        /*
+           Se repite el saludo cada segundo (en vez de
+           mandarlo una sola vez) porque no hay garantía de
+           en qué orden se suscribe cada lado al canal: si la
+           anfitriona ya está esperando cuando la invitada
+           recién se conecta, la invitada necesita mandar su
+           propio saludo para que la anfitriona se entere.
+        */
+
+        snakeHelloTimer =
+            setInterval(() => {
+
+                if(snakePartnerConnected){
+
+                    clearInterval(snakeHelloTimer);
+                    snakeHelloTimer = null;
+                    return;
+
+                }
+
+                sendSnakeMsg({
+                    kind:"hello",
+                    role:role,
+                    username:currentUser
+                });
+
+            },1000);
+
+    });
+
+}
+
+
+function handleSnakeRoomMessage(payload){
+
+    if(!payload || !payload.kind){
+        return;
+    }
+
+
+    if(
+        payload.kind === "hello" &&
+        payload.role !== snakeCoopMode
+    ){
+
+        const justConnected = !snakePartnerConnected;
+
+        snakePartnerConnected = true;
+        snakePartnerUsername = payload.username;
+
+        if(justConnected){
+
+            setSnakeCoopStatus(
+                "✅ Conectado con " +
+                snakePartnerUsername +
+                (
+                    snakeCoopMode === "host"
+                    ? ". Tocá \"Empezar\" cuando quieras."
+                    : ". Esperando que la anfitriona empiece..."
+                )
+            );
+
+            const startButton =
+                document.getElementById("snakeCoopStartButton");
+
+            if(startButton && snakeCoopMode === "host"){
+                startButton.classList.remove("hidden");
+            }
+
+        }
+
+        /*
+           Le contesto mi propio saludo para que, si el otro
+           lado todavía no marcó "conectado", lo haga con
+           esta respuesta sin tener que esperar su próximo
+           intervalo de 1s.
+        */
+        sendSnakeMsg({
+            kind:"hello",
+            role:snakeCoopMode,
+            username:currentUser
+        });
+
+        return;
+
+    }
+
+
+    if(payload.kind === "start" && snakeCoopMode === "guest"){
+
+        startSnakeCoopGuestView(payload.cols,payload.rows);
+        return;
+
+    }
+
+
+    if(payload.kind === "direction" && snakeCoopMode === "host"){
+
+        snakeQueueDirectionFor(2,payload.dir);
+        return;
+
+    }
+
+
+    if(payload.kind === "continue" && snakeCoopMode === "host"){
+
+        resumeSnakeAfterLevel();
+        return;
+
+    }
+
+
+    if(payload.kind === "state" && snakeCoopMode === "guest"){
+
+        renderSnakeCoopState(payload);
+        return;
+
+    }
+
+
+    if(payload.kind === "ended" && snakeCoopMode === "guest"){
+
+        snakePoints = payload.points;
+        finishSnakeGame();
+        return;
+
+    }
+
+
+    if(
+        payload.kind === "leave" &&
+        payload.role !== snakeCoopMode
+    ){
+
+        setSnakeCoopStatus(
+            "👋 " +
+            (snakePartnerUsername || "El otro jugador") +
+            " se desconectó."
+        );
+
+        snakePartnerConnected = false;
+
+        if(snakeCoopMode === "host" && snakeRunning){
+
+            finishSnakeGame();
+
+        }
+
+        return;
+
+    }
+
+}
+
+
+function teardownSnakeRoom(){
+
+    if(snakeHelloTimer){
+
+        clearInterval(snakeHelloTimer);
+        snakeHelloTimer = null;
+
+    }
+
+    if(snakeRoomChannel){
+
+        sendSnakeMsg({kind:"leave",role:snakeCoopMode});
+
+        supabaseClient.removeChannel(snakeRoomChannel);
+        snakeRoomChannel = null;
+
+    }
+
+    snakeCoopMode = null;
+    snakeRoomCode = null;
+    snakePartnerConnected = false;
+    snakePartnerUsername = null;
+
+}
+
+
+function openSnakeCoopLobby(){
+
+    const lobby =
+        document.getElementById("snakeCoopLobby");
+
+    if(lobby){
+        lobby.classList.remove("hidden");
+    }
+
+}
+
+
+function createSnakeRoom(){
+
+    const code = generateRoomCode();
+
+    const codeDisplay =
+        document.getElementById("snakeCoopCodeDisplay");
+
+    if(codeDisplay){
+
+        codeDisplay.textContent = code;
+        codeDisplay.classList.remove("hidden");
+
+    }
+
+    subscribeSnakeRoom(code,"host");
+
+}
+
+
+function joinSnakeRoom(){
+
+    const input =
+        document.getElementById("snakeJoinCodeInput");
+
+    if(!input){
+        return;
+    }
+
+    const code =
+        input.value.trim().toUpperCase();
+
+    if(code.length !== 5){
+
+        setSnakeCoopStatus(
+            "❌ El código tiene 5 caracteres."
+        );
+
+        return;
+
+    }
+
+    subscribeSnakeRoom(code,"guest");
+
+}
+
+
+function cancelSnakeCoop(){
+
+    teardownSnakeRoom();
+
+    const lobby =
+        document.getElementById("snakeCoopLobby");
+
+    if(lobby){
+        lobby.classList.add("hidden");
+    }
+
+    const codeDisplay =
+        document.getElementById("snakeCoopCodeDisplay");
+
+    if(codeDisplay){
+        codeDisplay.classList.add("hidden");
+    }
+
+    const startButton =
+        document.getElementById("snakeCoopStartButton");
+
+    if(startButton){
+        startButton.classList.add("hidden");
+    }
+
+    setSnakeCoopStatus("");
+
+}
+
+
+function startSnakeCoop(){
+
+    if(snakeCoopMode !== "host" || !snakePartnerConnected){
+        return;
+    }
+
+    snakeGame();
+
+}
+
+
+/*
+   El host manda esto después de cada paso (y cada vez que
+   cambia algo fuera del paso normal: nivel nuevo, oferta de
+   revivir, reanudar). La invitada nunca simula, solo dibuja
+   lo último que le llegó acá.
+*/
+
+function broadcastSnakeState(){
+
+    if(snakeCoopMode !== "host"){
+        return;
+    }
+
+    sendSnakeMsg({
+
+        kind:"state",
+
+        bodyHost:snakeBody,
+        bodyGuest:snakeBody2,
+        food:snakeFood,
+        obstacles:snakeObstacles,
+        points:snakePoints,
+        level:snakeLevel,
+        tickMs:snakeCurrentTickMs,
+
+        awaitingContinue:snakeAwaitingContinue,
+        reviveOffered:snakeReviveOffered
+
+    });
+
+}
+
+
+function startSnakeCoopGuestView(cols,rows){
+
+    const box =
+        document.getElementById("snakeGameBox");
+
+    const canvas =
+        document.getElementById("snakeCanvas");
+
+    if(!box || !canvas){
+        return;
+    }
+
+    const lobby =
+        document.getElementById("snakeCoopLobby");
+
+    if(lobby){
+        lobby.classList.add("hidden");
+    }
+
+    const legend =
+        document.getElementById("snakeCoopLegend");
+
+    const partnerName =
+        document.getElementById("snakeCoopPartnerName");
+
+    if(legend){
+        legend.classList.remove("hidden");
+    }
+
+    if(partnerName){
+        partnerName.textContent = snakePartnerUsername || "";
+    }
+
+
+    snakeRunning = true;
+    snakeAwaitingContinue = false;
+    snakeReviveOffered = false;
+    snakePoints = 0;
+    snakeLevel = 1;
+
+    /*
+       Mismas cols/rows que calculó el host (para que las
+       coordenadas que manda por el canal coincidan 1 a 1),
+       pero el tamaño de celda se recalcula con el ancho/alto
+       real de ESTA pantalla.
+    */
+    snakeCols = cols;
+    snakeRows = rows;
+
+    snakeCellSize =
+        Math.min(
+            box.clientWidth / snakeCols,
+            box.clientHeight / snakeRows
+        );
+
+    canvas.width = Math.round(snakeCellSize * snakeCols);
+    canvas.height = Math.round(snakeCellSize * snakeRows);
+
+    snakeBody = [];
+    snakeBody2 = [];
+
+
+    const score =
+        document.getElementById("snakeScore");
+
+    if(score){
+        score.textContent = "0";
+    }
+
+    const levelDisplay =
+        document.getElementById("snakeLevelDisplay");
+
+    if(levelDisplay){
+        levelDisplay.textContent = "1";
+    }
+
+
+    snakeKeyHandler = function(event){
+
+        const map = {
+            ArrowUp:"up",
+            ArrowDown:"down",
+            ArrowLeft:"left",
+            ArrowRight:"right"
+        };
+
+        const dir = map[event.key];
+
+        if(dir){
+            event.preventDefault();
+            snakeSetDirection(dir);
+        }
+
+    };
+
+    document.addEventListener("keydown",snakeKeyHandler);
+
+
+    getSnakeAudioContext();
+    snakeMusicIndex = 0;
+    startSnakeMusic();
+
+}
+
+
+function renderSnakeCoopState(state){
+
+    const prevPoints = snakePoints;
+    const prevLevel = snakeLevel;
+
+    snakeBody = state.bodyGuest;
+    snakeBody2 = state.bodyHost;
+    snakeFood = state.food;
+    snakeObstacles = state.obstacles;
+    snakePoints = state.points;
+    snakeLevel = state.level;
+    snakeCurrentTickMs = state.tickMs;
+    snakeAwaitingContinue = state.awaitingContinue;
+    snakeReviveOffered = state.reviveOffered;
+
+    const score =
+        document.getElementById("snakeScore");
+
+    if(score){
+        score.textContent = snakePoints;
+    }
+
+    const levelDisplay =
+        document.getElementById("snakeLevelDisplay");
+
+    if(levelDisplay){
+        levelDisplay.textContent = snakeLevel;
+    }
+
+    if(snakePoints > prevPoints){
+        playSnakeEatSound();
+    }
+
+    if(snakeLevel > prevLevel){
+        playSnakeLevelUpSound();
+    }
+
+
+    const levelBanner =
+        document.getElementById("snakeLevelBanner");
+
+    const levelBannerText =
+        document.getElementById("snakeLevelBannerText");
+
+    const reviveBanner =
+        document.getElementById("snakeReviveBanner");
+
+    const reviveBannerText =
+        document.getElementById("snakeReviveBannerText");
+
+    const reviveYesButton =
+        document.getElementById("snakeReviveYesButton");
+
+    const reviveNoButton =
+        document.getElementById("snakeReviveNoButton");
+
+
+    if(state.reviveOffered){
+
+        if(levelBanner){ levelBanner.classList.add("hidden"); }
+
+        if(reviveBannerText){
+
+            reviveBannerText.textContent =
+                "💥 ¡Choque en equipo! Esperando que " +
+                (snakePartnerUsername || "la anfitriona") +
+                " decida si revivir...";
+
+        }
+
+        if(reviveYesButton){ reviveYesButton.classList.add("hidden"); }
+        if(reviveNoButton){ reviveNoButton.classList.add("hidden"); }
+
+        if(reviveBanner){ reviveBanner.classList.remove("hidden"); }
+
+    }
+    else if(state.awaitingContinue){
+
+        if(reviveBanner){ reviveBanner.classList.add("hidden"); }
+
+        if(levelBannerText){
+
+            levelBannerText.innerHTML =
+                "🎉 ¡Nivel " + snakeLevel + "!" +
+                (
+                    snakeObstacles.length
+                    ? " Cuidado con los obstáculos."
+                    : " ¡Cada vez más rápido!"
+                ) +
+                "<br><span class=\"small\">" +
+                "Presioná una tecla o tocá un botón para seguir." +
+                "</span>";
+
+        }
+
+        if(levelBanner){ levelBanner.classList.remove("hidden"); }
+
+    }
+    else{
+
+        if(levelBanner){ levelBanner.classList.add("hidden"); }
+        if(reviveBanner){ reviveBanner.classList.add("hidden"); }
+
+    }
+
+
+    drawSnake();
+
+}
+
+
 function snakeGame(){
 
     const box =
@@ -8995,11 +9722,37 @@ function snakeGame(){
 
     snakeRunning = true;
     snakeAwaitingContinue = false;
+    snakeReviveOffered = false;
     snakePoints = 0;
     snakeLevel = 1;
     snakeCurrentTickMs = SNAKE_TICK_MS;
     snakeObstacles = [];
     snakeCheckpoint = null;
+
+    if(snakeCoopMode === "host"){
+
+        const lobby =
+            document.getElementById("snakeCoopLobby");
+
+        if(lobby){
+            lobby.classList.add("hidden");
+        }
+
+        const legend =
+            document.getElementById("snakeCoopLegend");
+
+        const partnerName =
+            document.getElementById("snakeCoopPartnerName");
+
+        if(legend){
+            legend.classList.remove("hidden");
+        }
+
+        if(partnerName){
+            partnerName.textContent = snakePartnerUsername || "";
+        }
+
+    }
 
     score.textContent = "0";
 
@@ -9023,6 +9776,20 @@ function snakeGame(){
     if(reviveBanner){
         reviveBanner.classList.add("hidden");
     }
+
+    /*
+       Por si quedaron ocultos de una partida cooperativa
+       anterior donde esta pantalla fue la invitada (ver
+       renderSnakeCoopState): acá siempre soy quien decide.
+    */
+    const reviveYesButton =
+        document.getElementById("snakeReviveYesButton");
+
+    const reviveNoButton =
+        document.getElementById("snakeReviveNoButton");
+
+    if(reviveYesButton){ reviveYesButton.classList.remove("hidden"); }
+    if(reviveNoButton){ reviveNoButton.classList.remove("hidden"); }
 
 
     /*
@@ -9059,6 +9826,16 @@ function snakeGame(){
     canvas.height =
         Math.round(snakeCellSize * snakeRows);
 
+    if(snakeCoopMode === "host"){
+
+        sendSnakeMsg({
+            kind:"start",
+            cols:snakeCols,
+            rows:snakeRows
+        });
+
+    }
+
 
     snakeDirection = "right";
     snakeDirectionQueue = [];
@@ -9068,6 +9845,23 @@ function snakeGame(){
         {x:3,y:Math.floor(snakeRows / 2)},
         {x:2,y:Math.floor(snakeRows / 2)}
     ];
+
+    /*
+       La serpiente de la invitada arranca del otro lado del
+       tablero, mirando hacia el centro, para no nacer ya
+       pegada a la del host.
+    */
+    snakeBody2 =
+        snakeCoopMode === "host"
+        ? [
+            {x:snakeCols - 5,y:Math.floor(snakeRows / 2) + 3},
+            {x:snakeCols - 4,y:Math.floor(snakeRows / 2) + 3},
+            {x:snakeCols - 3,y:Math.floor(snakeRows / 2) + 3}
+        ]
+        : [];
+
+    snakeDirection2 = "left";
+    snakeDirectionQueue2 = [];
 
     placeSnakeFood();
 
@@ -9142,11 +9936,48 @@ function snakeSetDirection(dir){
         return;
     }
 
+    /*
+       La invitada no simula nada localmente: manda su
+       intención por el canal y el host es quien de verdad
+       encola/valida el movimiento (misma lógica de
+       snakeQueueDirectionFor, del lado del host).
+    */
+    if(snakeCoopMode === "guest"){
+
+        if(snakeAwaitingContinue){
+            sendSnakeMsg({kind:"continue"});
+        }
+
+        sendSnakeMsg({kind:"direction",dir:dir});
+        return;
+
+    }
+
     if(snakeAwaitingContinue){
 
         resumeSnakeAfterLevel();
 
     }
+
+    snakeQueueDirectionFor(1,dir);
+
+}
+
+
+/*
+   Misma validación anti-reversa de siempre, separada en su
+   propia función para poder aplicarla tanto a la serpiente
+   propia del host (jugador 1) como a la de la invitada
+   (jugador 2), cuyo movimiento llega por el canal.
+*/
+
+function snakeQueueDirectionFor(player,dir){
+
+    const direction =
+        player === 1 ? snakeDirection : snakeDirection2;
+
+    const queue =
+        player === 1 ? snakeDirectionQueue : snakeDirectionQueue2;
 
     const opposite = {
         up:"down",
@@ -9155,17 +9986,10 @@ function snakeSetDirection(dir){
         right:"left"
     };
 
-    /*
-       Se compara contra la última dirección ya encolada
-       (o la actual, si no hay cola) para no permitir una
-       reversa directa, incluso si el jugador encadena dos
-       toques antes del próximo paso del juego.
-    */
-
     const lastQueued =
-        snakeDirectionQueue.length
-        ? snakeDirectionQueue[snakeDirectionQueue.length - 1]
-        : snakeDirection;
+        queue.length
+        ? queue[queue.length - 1]
+        : direction;
 
     if(dir === lastQueued){
         return;
@@ -9175,9 +9999,9 @@ function snakeSetDirection(dir){
         return;
     }
 
-    if(snakeDirectionQueue.length < 2){
+    if(queue.length < 2){
 
-        snakeDirectionQueue.push(dir);
+        queue.push(dir);
 
     }
 
@@ -9594,6 +10418,20 @@ function resumeSnakeAfterLevel(){
         return;
     }
 
+    /*
+       Si la invitada toca el aviso directamente (en vez de
+       una tecla, que ya se filtra en snakeSetDirection), hay
+       que mandarle el pedido al host en vez de arrancar un
+       setInterval propio acá, que competiría con la
+       simulación real.
+    */
+    if(snakeCoopMode === "guest"){
+
+        sendSnakeMsg({kind:"continue"});
+        return;
+
+    }
+
     snakeAwaitingContinue = false;
 
     const banner =
@@ -9615,6 +10453,8 @@ function resumeSnakeAfterLevel(){
 
     }
 
+    broadcastSnakeState();
+
 }
 
 
@@ -9622,13 +10462,21 @@ function resumeSnakeAfterLevel(){
    AVANZAR UN PASO
 ========================================================= */
 
-function snakeTick(){
+/*
+   Un solo paso (siguiente cabeza) para la serpiente 1 o la 2,
+   aplicando la próxima dirección encolada si hay una. Separado
+   de snakeTick para poder repetirlo dos veces en cooperativo
+   sin duplicar la lógica.
+*/
 
-    if(snakeDirectionQueue.length){
+function snakeStepFor(player){
 
-        snakeDirection =
-            snakeDirectionQueue.shift();
+    if(player === 1 && snakeDirectionQueue.length){
+        snakeDirection = snakeDirectionQueue.shift();
+    }
 
+    if(player === 2 && snakeDirectionQueue2.length){
+        snakeDirection2 = snakeDirectionQueue2.shift();
     }
 
     const deltas = {
@@ -9638,59 +10486,100 @@ function snakeTick(){
         right:{x:1,y:0}
     };
 
-    const delta = deltas[snakeDirection];
+    const body = player === 1 ? snakeBody : snakeBody2;
+    const delta = deltas[player === 1 ? snakeDirection : snakeDirection2];
+    const head = body[0];
 
-    const head = snakeBody[0];
+    return {x:head.x + delta.x,y:head.y + delta.y};
 
-    const newHead = {
-        x:head.x + delta.x,
-        y:head.y + delta.y
-    };
+}
 
 
-    /* Choque contra la pared */
+/*
+   ¿Esta nueva cabeza choca contra la pared, contra el propio
+   cuerpo (sin contar la cola si se va a mover), contra un
+   obstáculo, o (en cooperativo) contra el cuerpo de la otra
+   serpiente?
+*/
+
+function snakeIsCollision(head,ownBodyToCheck,otherBodyToCheck){
 
     if(
-        newHead.x < 0 ||
-        newHead.x >= snakeCols ||
-        newHead.y < 0 ||
-        newHead.y >= snakeRows
+        head.x < 0 || head.x >= snakeCols ||
+        head.y < 0 || head.y >= snakeRows
     ){
-
-        snakeEnd();
-        return;
-
+        return true;
     }
 
+    if(
+        ownBodyToCheck.some(
+            segment => segment.x === head.x && segment.y === head.y
+        )
+    ){
+        return true;
+    }
+
+    if(
+        snakeObstacles.some(
+            obstacle => obstacle.x === head.x && obstacle.y === head.y
+        )
+    ){
+        return true;
+    }
+
+    if(
+        otherBodyToCheck.some(
+            segment => segment.x === head.x && segment.y === head.y
+        )
+    ){
+        return true;
+    }
+
+    return false;
+
+}
+
+
+function snakeTick(){
+
+    const hasP2 =
+        snakeCoopMode === "host" && snakeBody2.length > 0;
+
+    const newHead1 = snakeStepFor(1);
+    const newHead2 = hasP2 ? snakeStepFor(2) : null;
+
+    const willEat1 =
+        newHead1.x === snakeFood.x && newHead1.y === snakeFood.y;
+
+    const willEat2 =
+        hasP2 &&
+        newHead2.x === snakeFood.x && newHead2.y === snakeFood.y;
 
     /*
-       ¿Este movimiento come comida? Hace falta saberlo
-       antes de revisar el choque contra sí mismo: si no
-       come, la cola se va a mover (desocupa su celda),
-       así que no cuenta como choque pisarla.
+       ¿Este movimiento come comida? Hace falta saberlo antes
+       de revisar el choque contra sí mismo: si no come, la
+       cola se va a mover (desocupa su celda), así que no
+       cuenta como choque pisarla.
     */
 
-    const willEat =
-        newHead.x === snakeFood.x &&
-        newHead.y === snakeFood.y;
+    const bodyToCheck1 =
+        willEat1 ? snakeBody : snakeBody.slice(0,-1);
 
-    const bodyToCheck =
-        willEat
-        ? snakeBody
-        : snakeBody.slice(0,-1);
+    const bodyToCheck2 =
+        hasP2
+        ? (willEat2 ? snakeBody2 : snakeBody2.slice(0,-1))
+        : [];
 
+    const headOnHead =
+        hasP2 &&
+        newHead1.x === newHead2.x && newHead1.y === newHead2.y;
 
-    /* Choque contra sí mismo */
+    const crashed =
+        headOnHead ||
+        snakeIsCollision(newHead1,bodyToCheck1,bodyToCheck2) ||
+        (hasP2 && snakeIsCollision(newHead2,bodyToCheck2,bodyToCheck1));
 
-    if(
-
-        bodyToCheck.some(
-            segment =>
-                segment.x === newHead.x &&
-                segment.y === newHead.y
-        )
-
-    ){
+    if(crashed){
 
         snakeEnd();
         return;
@@ -9698,28 +10587,27 @@ function snakeTick(){
     }
 
 
-    /* Choque contra un obstáculo */
+    snakeBody.unshift(newHead1);
 
-    if(
+    if(willEat1){
+        /* la cola no se saca: la serpiente crece */
+    }
+    else{
+        snakeBody.pop();
+    }
 
-        snakeObstacles.some(
-            obstacle =>
-                obstacle.x === newHead.x &&
-                obstacle.y === newHead.y
-        )
+    if(hasP2){
 
-    ){
+        snakeBody2.unshift(newHead2);
 
-        snakeEnd();
-        return;
+        if(!willEat2){
+            snakeBody2.pop();
+        }
 
     }
 
 
-    snakeBody.unshift(newHead);
-
-
-    if(willEat){
+    if(willEat1 || willEat2){
 
         playSnakeEatSound();
 
@@ -9750,9 +10638,10 @@ function snakeTick(){
 
 
         /*
-           Checkpoint: el estado justo después de comer
-           este premio, para poder volver acá si el
-           jugador decide "revivir" tras un choque.
+           Checkpoint: el estado justo después de comer este
+           premio (las dos serpientes, en cooperativo), para
+           poder volver acá si se decide "revivir" tras un
+           choque.
         */
 
         snakeCheckpoint = {
@@ -9760,7 +10649,13 @@ function snakeTick(){
             body:
                 JSON.parse(JSON.stringify(snakeBody)),
 
+            body2:
+                hasP2
+                ? JSON.parse(JSON.stringify(snakeBody2))
+                : null,
+
             direction:snakeDirection,
+            direction2:snakeDirection2,
 
             food:
                 {x:snakeFood.x,y:snakeFood.y},
@@ -9777,14 +10672,10 @@ function snakeTick(){
         };
 
     }
-    else{
-
-        snakeBody.pop();
-
-    }
 
 
     drawSnake();
+    broadcastSnakeState();
 
 }
 
@@ -9837,7 +10728,7 @@ function drawSnake(){
     });
 
 
-    /* Cuerpo */
+    /* Cuerpo (mío, verde) */
 
     snakeBody.forEach((segment,index) => {
 
@@ -9845,6 +10736,25 @@ function drawSnake(){
             index === 0
             ? "#8acb65"
             : "#43a84a";
+
+        ctx.fillRect(
+            segment.x * snakeCellSize + 1,
+            segment.y * snakeCellSize + 1,
+            snakeCellSize - 2,
+            snakeCellSize - 2
+        );
+
+    });
+
+
+    /* Cuerpo de la otra jugadora en cooperativo, azul */
+
+    snakeBody2.forEach((segment,index) => {
+
+        ctx.fillStyle =
+            index === 0
+            ? "#64b5f6"
+            : "#1976d2";
 
         ctx.fillRect(
             segment.x * snakeCellSize + 1,
@@ -9894,6 +10804,8 @@ function snakeEnd(){
 
 function showSnakeReviveOffer(){
 
+    snakeReviveOffered = true;
+
     const banner =
         document.getElementById("snakeReviveBanner");
 
@@ -9915,6 +10827,8 @@ function showSnakeReviveOffer(){
         banner.classList.remove("hidden");
     }
 
+    broadcastSnakeState();
+
 }
 
 
@@ -9930,6 +10844,8 @@ function reviveSnake(){
     if(banner){
         banner.classList.add("hidden");
     }
+
+    snakeReviveOffered = false;
 
     if(
         !snakeCheckpoint ||
@@ -9949,6 +10865,16 @@ function reviveSnake(){
 
     snakeDirection = snakeCheckpoint.direction;
     snakeDirectionQueue = [];
+
+    if(snakeCheckpoint.body2){
+
+        snakeBody2 =
+            JSON.parse(JSON.stringify(snakeCheckpoint.body2));
+
+        snakeDirection2 = snakeCheckpoint.direction2;
+        snakeDirectionQueue2 = [];
+
+    }
 
     snakeFood =
         {x:snakeCheckpoint.food.x,y:snakeCheckpoint.food.y};
@@ -10019,6 +10945,8 @@ function reviveSnake(){
 
     saveGame(true);
 
+    broadcastSnakeState();
+
 }
 
 
@@ -10027,6 +10955,8 @@ function reviveSnake(){
 ========================================================= */
 
 function declineSnakeRevive(){
+
+    snakeReviveOffered = false;
 
     const banner =
         document.getElementById("snakeReviveBanner");
@@ -10082,6 +11012,27 @@ function finishSnakeGame(){
     renderGameScores();
 
     saveGame(true);
+
+    stopSnakeMusic();
+
+    if(snakeCoopMode === "host"){
+
+        sendSnakeMsg({kind:"ended",points:snakePoints});
+
+    }
+
+    if(snakeCoopMode){
+
+        teardownSnakeRoom();
+
+        const legend =
+            document.getElementById("snakeCoopLegend");
+
+        if(legend){
+            legend.classList.add("hidden");
+        }
+
+    }
 
 }
 
@@ -10715,6 +11666,17 @@ console.log(
 
 const SUPABASE_URL = "https://mflyiehxoihkgafnfjtm.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mbHlpZWh4b2loa2dhZm5manRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3MTY3MTUsImV4cCI6MjEwMTI5MjcxNX0.Mql43TgkMvLUxkgC60TBoIA-bb8vfs2TJIV_PE8TfDk";
+
+/*
+   Cliente de supabase-js, solo para el modo cooperativo de
+   Snake (Realtime broadcast). El resto del backend (login,
+   guardado, intercambios) sigue yendo por apiRequest()/fetch
+   directo a las funciones RPC, sin tocar esto.
+*/
+const supabaseClient =
+    (typeof supabase !== "undefined")
+    ? supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
+    : null;
 
 /*
    Cada "action" del backend anterior corresponde a una
