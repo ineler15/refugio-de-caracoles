@@ -4046,6 +4046,582 @@ function babyModel(s){
 }
 
 
+/* =========================================================
+   MODELOS ESPECIALES — CARACOL FANTASMA
+
+   Sigue siendo un caracol (concha con espiral, cabeza,
+   antenas) en cada pose, pero translúcido, con la concha y el
+   pie desvaídos, y el borde del pie en zigzag como cola de
+   fantasma en vez del óvalo liso del resto de especies. El
+   trazo se aclara a "#7183ad"/"#4d5c82" en vez de "#333"/
+   "#222" porque el s.color de esta especie es un lavanda casi
+   blanco (pensado para el relleno, no para líneas): con el
+   trazo oscuro normal las antenas casi no se veían.
+========================================================= */
+
+function ghostNeutralModel(s){
+
+    return `
+
+    <svg
+        viewBox="0 0 110 90"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <path
+            d="
+                M2 58
+                Q2 52 8 52
+                L82 52
+                Q88 52 88 58
+                L88 64
+                L78 80
+                L68 64
+                L58 80
+                L48 64
+                L38 80
+                L28 64
+                L18 80
+                L8 64
+                Z
+            "
+            fill="${bodyFill(s)}"
+            fill-opacity=".55"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="54"
+            cy="40"
+            r="29"
+            fill="${shellFill(s)}"
+            fill-opacity=".65"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <path
+            d="
+                M54 19
+                C30 22 29 54 53 57
+                C73 59 80 38 64 30
+                C52 24 42 36 49 44
+            "
+            fill="none"
+            stroke="#7183ad"
+            stroke-width="5"
+            opacity=".8"
+        />
+
+        <circle
+            cx="88"
+            cy="61"
+            r="11"
+            fill="${bodyFill(s)}"
+            fill-opacity=".6"
+            stroke="#7183ad"
+            stroke-width="2"
+        />
+
+        <path
+            d="
+                M84 52
+                Q87 36 85 25
+                M91 52
+                Q98 38 99 28
+            "
+            fill="none"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="85"
+            cy="24"
+            r="3"
+            fill="#4d5c82"
+        />
+
+        <circle
+            cx="99"
+            cy="27"
+            r="3"
+            fill="#4d5c82"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
+function ghostSadModel(s){
+
+    return `
+
+    <svg
+        viewBox="0 0 110 90"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <path
+            d="
+                M2 58
+                Q2 52 8 52
+                L82 52
+                Q88 52 88 58
+                L88 64
+                L78 80
+                L68 64
+                L58 80
+                L48 64
+                L38 80
+                L28 64
+                L18 80
+                L8 64
+                Z
+            "
+            fill="${bodyFill(s)}"
+            fill-opacity=".55"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="54"
+            cy="40"
+            r="29"
+            fill="${shellFill(s)}"
+            fill-opacity=".65"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <path
+            d="
+                M54 19
+                C30 22 29 54 53 57
+                C73 59 80 38 64 30
+                C52 24 42 36 49 44
+            "
+            fill="none"
+            stroke="#7183ad"
+            stroke-width="5"
+            opacity=".8"
+        />
+
+        <circle
+            cx="88"
+            cy="65"
+            r="11"
+            fill="${bodyFill(s)}"
+            fill-opacity=".6"
+            stroke="#7183ad"
+            stroke-width="2"
+        />
+
+        <path
+            d="
+                M82 57
+                Q80 42 74 33
+                M95 57
+                Q100 44 102 35
+            "
+            fill="none"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <path
+            d="M81 40 Q85 37 89 40"
+            fill="none"
+            stroke="#4d5c82"
+            stroke-width="2"
+            stroke-linecap="round"
+        />
+
+        <path
+            d="M96 41 Q100 38 104 41"
+            fill="none"
+            stroke="#4d5c82"
+            stroke-width="2"
+            stroke-linecap="round"
+        />
+
+        <circle
+            cx="85"
+            cy="45"
+            r="2.8"
+            fill="#4d5c82"
+        />
+
+        <circle
+            cx="100"
+            cy="46"
+            r="2.8"
+            fill="#4d5c82"
+        />
+
+        <path
+            d="M85 49 Q83 56 86 60 Q88 57 85 49 Z"
+            fill="#7ec8e3"
+            opacity=".85"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
+function ghostSleepingModel(s){
+
+    return `
+
+    <svg
+        viewBox="0 0 110 90"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <path
+            d="
+                M2 58
+                Q2 52 8 52
+                L82 52
+                Q88 52 88 58
+                L88 64
+                L78 80
+                L68 64
+                L58 80
+                L48 64
+                L38 80
+                L28 64
+                L18 80
+                L8 64
+                Z
+            "
+            fill="${bodyFill(s)}"
+            fill-opacity=".55"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="54"
+            cy="40"
+            r="29"
+            fill="${shellFill(s)}"
+            fill-opacity=".65"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <path
+            d="
+                M54 19
+                C30 22 29 54 53 57
+                C73 59 80 38 64 30
+                C52 24 42 36 49 44
+            "
+            fill="none"
+            stroke="#7183ad"
+            stroke-width="5"
+            opacity=".8"
+        />
+
+        <circle
+            cx="86"
+            cy="65"
+            r="11"
+            fill="${bodyFill(s)}"
+            fill-opacity=".6"
+            stroke="#7183ad"
+            stroke-width="2"
+        />
+
+        <path
+            d="
+                M83 57
+                Q90 53 93 58
+                M89 57
+                Q96 54 98 60
+            "
+            fill="none"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <path
+            d="M90 58 q3 3 6 0"
+            fill="none"
+            stroke="#4d5c82"
+            stroke-width="2"
+            stroke-linecap="round"
+        />
+
+        <path
+            d="M95 60 q3 3 6 0"
+            fill="none"
+            stroke="#4d5c82"
+            stroke-width="2"
+            stroke-linecap="round"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
+function ghostEatingModel(s){
+
+    return `
+
+    <svg
+        viewBox="0 0 110 90"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <path
+            d="
+                M2 58
+                Q2 52 8 52
+                L82 52
+                Q88 52 88 58
+                L88 64
+                L78 80
+                L68 64
+                L58 80
+                L48 64
+                L38 80
+                L28 64
+                L18 80
+                L8 64
+                Z
+            "
+            fill="${bodyFill(s)}"
+            fill-opacity=".55"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="54"
+            cy="40"
+            r="29"
+            fill="${shellFill(s)}"
+            fill-opacity=".65"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <path
+            d="
+                M54 19
+                C30 22 29 54 53 57
+                C73 59 80 38 64 30
+                C52 24 42 36 49 44
+            "
+            fill="none"
+            stroke="#7183ad"
+            stroke-width="5"
+            opacity=".8"
+        />
+
+        <circle
+            cx="90"
+            cy="74"
+            r="11"
+            fill="${bodyFill(s)}"
+            fill-opacity=".6"
+            stroke="#7183ad"
+            stroke-width="2"
+        />
+
+        <path
+            d="
+                M86 65
+                Q89 76 85 82
+                M93 65
+                Q99 74 99 81
+            "
+            fill="none"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="85"
+            cy="82"
+            r="2.5"
+            fill="#4d5c82"
+        />
+
+        <circle
+            cx="99"
+            cy="81"
+            r="2.5"
+            fill="#4d5c82"
+        />
+
+        <ellipse
+            cx="92"
+            cy="90"
+            rx="4"
+            ry="2.6"
+            fill="#7a2f22"
+        />
+
+        <circle
+            cx="76"
+            cy="87"
+            r="2.6"
+            fill="#8bc34a"
+            stroke="#333"
+            stroke-width="1"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
+function ghostHappyModel(s){
+
+    return `
+
+    <svg
+        viewBox="0 0 110 90"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+
+        <path
+            d="
+                M2 58
+                Q2 52 8 52
+                L82 52
+                Q88 52 88 58
+                L88 64
+                L78 80
+                L68 64
+                L58 80
+                L48 64
+                L38 80
+                L28 64
+                L18 80
+                L8 64
+                Z
+            "
+            fill="${bodyFill(s)}"
+            fill-opacity=".55"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <circle
+            cx="54"
+            cy="40"
+            r="29"
+            fill="${shellFill(s)}"
+            fill-opacity=".65"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <path
+            d="
+                M54 19
+                C30 22 29 54 53 57
+                C73 59 80 38 64 30
+                C52 24 42 36 49 44
+            "
+            fill="none"
+            stroke="#7183ad"
+            stroke-width="5"
+            opacity=".8"
+        />
+
+        <circle
+            cx="88"
+            cy="61"
+            r="11"
+            fill="${bodyFill(s)}"
+            fill-opacity=".6"
+            stroke="#7183ad"
+            stroke-width="2"
+        />
+
+        <path
+            d="
+                M84 52
+                Q82 28 74 14
+                M91 52
+                Q102 30 108 16
+            "
+            fill="none"
+            stroke="#7183ad"
+            stroke-width="3"
+        />
+
+        <ellipse
+            cx="80"
+            cy="64"
+            rx="4"
+            ry="2.5"
+            fill="#ff9db0"
+            opacity=".65"
+        />
+
+        <ellipse
+            cx="95"
+            cy="66"
+            rx="4"
+            ry="2.5"
+            fill="#ff9db0"
+            opacity=".65"
+        />
+
+        <circle
+            cx="74"
+            cy="14"
+            r="3.5"
+            fill="#4d5c82"
+        />
+
+        <circle
+            cx="75.5"
+            cy="12.5"
+            r="1.1"
+            fill="#fff"
+        />
+
+        <circle
+            cx="108"
+            cy="16"
+            r="3.5"
+            fill="#4d5c82"
+        />
+
+        <circle
+            cx="109.5"
+            cy="14.5"
+            r="1.1"
+            fill="#fff"
+        />
+
+    </svg>
+
+    `;
+
+}
+
+
 
 
 /* =========================================================
@@ -4108,30 +4684,34 @@ function model(s,snail){
     }
 
     /*
-       Todas las especies (incluidas cósmico y fantasma, que
-       antes tenían un dibujo especial fijo sin poses) usan el
-       mismo sistema de poses que "rojo", coloreado con su
-       propio color/shell.
+       Todas las especies (incluidos cósmico y fantasma) usan
+       el mismo sistema de poses que "rojo", coloreado con su
+       propio color/shell — el fantasma usa su propio set de
+       dibujos (ghost*Model) en vez de los genéricos, ya que
+       necesita el pie en zigzag y el trazo más claro en cada
+       pose (ver ghostNeutralModel más arriba).
     */
+    const ghost = s.id === "fantasma";
+
     switch(poseKeyFor(snail)){
 
         case "happy":
-            return happyModel(s);
+            return ghost ? ghostHappyModel(s) : happyModel(s);
 
         case "eating":
-            return eatingModel(s);
+            return ghost ? ghostEatingModel(s) : eatingModel(s);
 
         case "sleeping":
-            return sleepingModel(s);
+            return ghost ? ghostSleepingModel(s) : sleepingModel(s);
 
         case "sad":
-            return sadModel(s);
+            return ghost ? ghostSadModel(s) : sadModel(s);
 
         case "neutral":
-            return neutralModel(s);
+            return ghost ? ghostNeutralModel(s) : neutralModel(s);
 
         default:
-            return happyModel(s);
+            return ghost ? ghostHappyModel(s) : happyModel(s);
 
     }
 
