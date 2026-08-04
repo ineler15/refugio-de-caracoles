@@ -3237,6 +3237,25 @@ function clamp(value,min,max){
 }
 
 
+/*
+   Ningún otro texto ingresado por el usuario se inserta hoy en
+   innerHTML (los usernames se validan con isValidUsername), pero
+   el nombre de caracol es libre, así que hace falta escapar antes
+   de mostrarlo para evitar HTML/script injection.
+*/
+
+function escapeHtml(text){
+
+    const div =
+        document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+
+}
+
+
 /* =========================================================
    CAMBIO DE PANEL
 ========================================================= */
@@ -4702,6 +4721,37 @@ function petSnail(id){
 }
 
 
+function renameSnail(id,rawName){
+
+    const snail =
+        game.snails.find(
+            s => s.id === id
+        );
+
+
+    if(!snail){
+        return;
+    }
+
+
+    const name =
+        (rawName || "")
+            .trim()
+            .slice(0,20);
+
+    snail.name = name;
+
+    message(
+        name
+        ? "✏️ Ahora se llama " + name + "."
+        : "✏️ Le quitaste el nombre."
+    );
+
+    render();
+
+}
+
+
 /* =========================================================
    HABLAR CON EL CARACOL
 ========================================================= */
@@ -6132,7 +6182,7 @@ function renderTerrarium(){
 
 
                 <div class="snailName">
-                    ${s.name}
+                    ${snail.name ? escapeHtml(snail.name) : s.name}
                 </div>
 
             </div>
@@ -6277,8 +6327,34 @@ function renderSnailCards(){
 
 
                 <h3>
-                    ${s.name}
+                    ${snail.name ? escapeHtml(snail.name) : s.name}
                 </h3>
+
+                ${
+                    snail.name
+                    ? `<p style="opacity:.7;font-size:.85em;">${s.name}</p>`
+                    : ""
+                }
+
+                <input
+                    type="text"
+                    id="nameInput_${snail.id}"
+                    placeholder="Ponle un nombre..."
+                    value="${snail.name ? escapeHtml(snail.name) : ""}"
+                    maxlength="20"
+                    style="width:90%;text-align:center;"
+                />
+
+                <button
+                    onclick="
+                        renameSnail(
+                            '${snail.id}',
+                            document.getElementById('nameInput_${snail.id}').value
+                        )
+                    "
+                >
+                    ✏️ Guardar nombre
+                </button>
 
 
                 <p>
@@ -6870,10 +6946,14 @@ function renderTrades(){
 
             const s = species(snail.type);
 
+            const label =
+                snail.name
+                ? escapeHtml(snail.name)
+                : (s ? s.name : snail.type) + " #" + (index + 1);
+
             return (
                 `<option value="${snail.id}">` +
-                (s ? s.name : snail.type) +
-                " #" + (index + 1) +
+                label +
                 `</option>`
             );
 
